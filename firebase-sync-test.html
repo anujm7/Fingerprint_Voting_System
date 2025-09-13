@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Sync Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .test-section {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .data-display {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Firebase Real-Time Sync Test</h1>
+        <p>Use this page to test if your Firebase changes are reflecting in real-time.</p>
+        
+        <div id="connection-status" class="status-indicator disconnected">
+            🔴 Checking connection...
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Live Statistics</h3>
+            <div class="data-display">
+                <div>Total Voters: <strong id="voter-count">Loading...</strong></div>
+                <div>Total Elections: <strong id="election-count">Loading...</strong></div>
+                <div>Last Update: <strong id="last-update">Never</strong></div>
+            </div>
+            <button onclick="forceRefresh()">🔄 Force Refresh</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Test Database Write</h3>
+            <p>Click the button below to add a test entry to Firebase:</p>
+            <button onclick="addTestData()">➕ Add Test Entry</button>
+            <button onclick="clearTestData()">🧹 Clear Test Data</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Activity Log</h3>
+            <div id="activity-log" class="log">
+                Waiting for Firebase events...\n
+            </div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, remove, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUq8kXNMY29rfqEf0APbnyDMf-fWTc7SU",
+            authDomain: "fingerprint-voting-syste-d926c.firebaseapp.com",
+            databaseURL: "https://fingerprint-voting-syste-d926c-default-rtdb.firebaseio.com",
+            projectId: "fingerprint-voting-syste-d926c",
+            storageBucket: "fingerprint-voting-syste-d926c.firebasestorage.app",
+            messagingSenderId: "458706704567",
+            appId: "1:458706704567:web:e1595ac2701de926219532",
+            measurementId: "G-4SEHLRDTCY"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Make available globally
+        window.database = database;
+        window.firebaseRefs = { ref, onValue, set, push, remove, get };
+
+        // Log function
+        function log(message) {
+            const logElement = document.getElementById('activity-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        // Connection monitoring
+        function monitorConnection() {
+            const connectedRef = ref(database, '.info/connected');
+            onValue(connectedRef, (snapshot) => {
+                const connected = snapshot.val();
+                const statusElement = document.getElementById('connection-status');
+                
+                if (connected) {
+                    statusElement.textContent = '🟢 Connected to Firebase';
+                    statusElement.className = 'status-indicator connected';
+                    log('✅ Firebase connection established');
+                } else {
+                    statusElement.textContent = '🔴 Disconnected from Firebase';
+                    statusElement.className = 'status-indicator disconnected';
+                    log('❌ Firebase connection lost');
+                }
+            });
+        }
+
+        // Monitor data changes
+        function setupDataListeners() {
+            // Monitor voters
+            const votersRef = ref(database, 'voters');
+            onValue(votersRef, (snapshot) => {
+                const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+                document.getElementById('voter-count').textContent = count;
+                document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+                log(`📊 Voters count updated: ${count}`);
+            });
+
+            // Monitor elections
+            const electionsRef = ref(database, 'elections');
+            onValue(electionsRef, (snapshot) => {
+                const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+                document.getElementById('election-count').textContent = count;
+                log(`🗳️ Elections count updated: ${count}`);
+            });
+
+            // Monitor test data specifically
+            const testRef = ref(database, 'test_data');
+            onValue(testRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    log(`🧪 Test data detected: ${JSON.stringify(snapshot.val())}`);
+                } else {
+                    log('🧪 No test data found');
+                }
+            });
+        }
+
+        // Global functions
+        window.forceRefresh = async function() {
+            log('🔄 Force refreshing data...');
+            try {
+                const dbRef = ref(database);
+                const snapshot = await get(dbRef);
+                if (snapshot.exists()) {
+                    log('✅ Force refresh completed');
+                    document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+                } else {
+                    log('⚠️ Database appears to be empty');
+                }
+            } catch (error) {
+                log(`❌ Force refresh failed: ${error.message}`);
+            }
+        };
+
+        window.addTestData = async function() {
+            try {
+                const testRef = ref(database, 'test_data');
+                const testData = {
+                    message: `Test entry created at ${new Date().toISOString()}`,
+                    timestamp: Date.now(),
+                    random: Math.floor(Math.random() * 1000)
+                };
+                await set(testRef, testData);
+                log('✅ Test data added successfully');
+            } catch (error) {
+                log(`❌ Failed to add test data: ${error.message}`);
+            }
+        };
+
+        window.clearTestData = async function() {
+            try {
+                const testRef = ref(database, 'test_data');
+                await remove(testRef);
+                log('🧹 Test data cleared');
+            } catch (error) {
+                log(`❌ Failed to clear test data: ${error.message}`);
+            }
+        };
+
+        window.clearLog = function() {
+            document.getElementById('activity-log').innerHTML = 'Log cleared...\n';
+        };
+
+        // Initialize
+        window.addEventListener('load', () => {
+            log('🚀 Firebase sync test page loaded');
+            monitorConnection();
+            setupDataListeners();
+        });
+    </script>
+</body>
+</html>

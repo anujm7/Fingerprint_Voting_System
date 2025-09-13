@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Check Enrollment | Online Voting System</title>
+<style>
+  :root{
+    --navy:#101a3a;      /* deep header/nav color */
+    --navy-2:#182447;    /* secondary navy */
+    --red:#e23b3b;       /* accent red */
+    --grey:#6b7280;
+    --light:#f8fafc;
+    --card:#ffffff;
+    --shadow:0 10px 24px rgba(0,0,0,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color:#111827;background:var(--light);line-height:1.55;
+  }
+
+  /* Topbar */
+  .topbar{
+    background:var(--navy);
+    color:#e5e7eb;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 28px;font-size:14px
+  }
+  .topbar span{margin-right:18px}
+
+  /* Header */
+  .header{
+    background:#fff;border-bottom:1px solid #e5e7eb;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .logo{font-size:32px;color:var(--navy)}
+  .brand .title{font-size:22px;font-weight:800;color:var(--navy)}
+  .brand .sub{font-size:12px;color:var(--grey)}
+  .cta{
+    display:flex;gap:10px;align-items:center
+  }
+  .btn{
+    border:none;border-radius:28px;padding:10px 18px;font-weight:700;
+    cursor:pointer;transition:transform .15s ease, filter .2s ease
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{filter:brightness(.94)}
+  .btn-ghost{background:#eef2ff;color:var(--navy);border-radius:10px}
+
+  /* MODULES NAV (highlighted, bordered) */
+  .modules{
+    position:sticky;top:0;z-index:4000;
+    background:linear-gradient(0deg, var(--navy-2), var(--navy));
+    border-top:4px solid var(--red);
+    border-bottom:4px solid var(--red);
+    box-shadow:var(--shadow)
+  }
+  .modules ul{list-style:none;display:flex;justify-content:center;flex-wrap:wrap}
+  .modules > ul > li{position:relative;margin:0 2px}
+  .modules a{
+    color:#fff;text-decoration:none;font-weight:600;letter-spacing:.2px;
+    display:block;padding:14px 18px;border-radius:8px;transition:background .25s ease
+  }
+  .modules > ul > li > a:hover{background:rgba(255,255,255,.08)}
+  .modules > ul > li > a::after{
+    content:'';display:block;height:3px;border-radius:2px;background:transparent;margin-top:8px
+  }
+  .modules > ul > li:hover > a::after{background:linear-gradient(90deg,#fff,var(--red))}
+  
+  /* Dropdowns */
+  .dropdown{
+    position:absolute;left:0;top:100%;min-width:230px;background:#ffffff;
+    border-radius:10px;box-shadow:var(--shadow);
+    padding:8px;margin-top:8px;opacity:0;visibility:hidden;transform:translateY(8px);
+    transition:all .2s ease;z-index:5000
+  }
+  .modules li:hover > .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+  .dropdown a{
+    color:#1f2937;padding:10px 12px;border-radius:8px;font-weight:600
+  }
+  .dropdown a:hover{background:#f3f4f6;color:var(--navy)}
+  .dropdown .label{font-size:11px;color:#6b7280;padding:6px 12px 4px}
+
+  /* Page Title */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy), var(--navy-2));
+    color: white;
+    padding: 40px 28px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .page-header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+  
+  .page-header p {
+    font-size: 18px;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  /* Back Button */
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .back-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .back-button span {
+    margin-left: 5px;
+  }
+
+  /* Main Content */
+  .check-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+  
+  /* Search Section */
+  .check-form-section {
+    flex: 1;
+    min-width: 350px;
+  }
+  
+  .check-form {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 30px;
+    margin-bottom: 20px;
+  }
+  
+  .form-title {
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .form-hint {
+    display: block;
+    font-size: 12px;
+    color: var(--grey);
+    margin-top: 4px;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .form-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  /* Search Tabs */
+  .search-tabs {
+    display: flex;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+  }
+  
+  .search-tab {
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: var(--grey);
+    transition: all 0.2s ease;
+  }
+  
+  .search-tab.active {
+    color: var(--navy);
+    border-bottom-color: var(--red);
+  }
+  
+  .search-panel {
+    display: none;
+  }
+  
+  .search-panel.active {
+    display: block;
+  }
+
+  /* Result Card */
+  .result-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: none;
+  }
+  
+  .result-header {
+    background: linear-gradient(to right, var(--navy-2), var(--navy));
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .voter-name {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  
+  .voter-id {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+  
+  .result-content {
+    padding: 20px;
+  }
+  
+  .result-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  
+  .status-active {
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  
+  .status-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  .status-inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .voter-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .detail-group {
+    margin-bottom: 15px;
+  }
+  
+  .detail-label {
+    font-size: 12px;
+    color: var(--grey);
+    margin-bottom: 4px;
+  }
+  
+  .detail-value {
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  .result-footer {
+    background: #f9fafb;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .update-info {
+    font-size: 12px;
+    color: var(--grey);
+  }
+  
+  .result-actions a {
+    color: var(--navy);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 15px;
+  }
+  
+  .result-actions a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Sidebar */
+  .check-sidebar {
+    flex: 1;
+    min-width: 280px;
+  }
+  
+  .info-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  
+  .info-card-header {
+    background: linear-gradient(to right, var(--navy-2), var(--navy));
+    color: white;
+    padding: 15px 20px;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  
+  .info-card-content {
+    padding: 20px;
+  }
+  
+  .info-steps {
+    list-style: none;
+    counter-reset: steps;
+    padding-left: 10px;
+  }
+  
+  .info-step {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+    counter-increment: steps;
+  }
+  
+  .info-step:before {
+    content: counter(steps);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  
+  .info-step-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 5px;
+  }
+  
+  .info-step-text {
+    font-size: 14px;
+    color: var(--grey);
+  }
+  
+  .alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .alert-info {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    color: #1e40af;
+  }
+  
+  .alert-icon {
+    margin-right: 15px;
+    font-size: 20px;
+  }
+  
+  .alert-content h4 {
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  
+  .alert-content p {
+    font-size: 14px;
+    margin: 0;
+    color: #3b82f6;
+  }
+  
+  .contact-box {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+  }
+  
+  .contact-icon {
+    width: 40px;
+    height: 40px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: var(--navy);
+  }
+  
+  .contact-info {
+    font-size: 14px;
+  }
+  
+  .contact-label {
+    font-weight: 600;
+    color: var(--navy);
+  }
+  
+  /* No Results */
+  .no-results {
+    background: #fee2e2;
+    border-left: 4px solid #ef4444;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  
+  .no-results h4 {
+    color: #b91c1c;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  
+  .no-results p {
+    font-size: 14px;
+    margin: 0;
+    color: #b91c1c;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .topbar {
+      flex-direction: column;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .header {
+      flex-direction: column;
+      padding: 15px;
+      gap: 15px;
+    }
+    
+    .modules ul {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .back-button {
+      position: relative;
+      top: auto;
+      left: auto;
+      margin-bottom: 20px;
+      display: inline-flex;
+    }
+    
+    .page-header {
+      text-align: center;
+      padding: 30px 20px;
+    }
+    
+    .page-header h1 {
+      font-size: 28px;
+    }
+    
+    .check-container {
+      flex-direction: column;
+    }
+    
+    .voter-details {
+      grid-template-columns: 1fr;
+    }
+    
+    .result-footer {
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
+    
+    .result-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    
+    .result-actions a {
+      margin: 0 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .search-tabs {
+      flex-direction: column;
+    }
+    
+    .search-tab {
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+    }
+  }
+
+  /* Polling Station Card */
+  .polling-station {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 4px solid var(--navy);
+  }
+  
+  .station-title {
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 5px;
+  }
+  
+  .station-address {
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 10px;
+  }
+  
+  .station-hours {
+    font-size: 12px;
+    color: var(--red);
+    font-weight: 600;
+  }
+  
+  /* QR Code */
+  .qr-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9fafb;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .qr-title {
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  
+  .qr-code {
+    width: 120px;
+    height: 120px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    margin: 0 auto 10px;
+  }
+  
+  .qr-text {
+    font-size: 12px;
+    color: #4b5563;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <span>📧 contact@onlinevote.gov</span>
+      <span>📞 1800 VOTE NOW</span>
+      <span>🌐 Private Voting System</span>
+    </div>
+    <div>⏰ Last Updated: Sep 11, 2025 · 09:30 AM</div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="logo">🗳️</div>
+      <div>
+        <div class="title">Online Voting System</div>
+        <div class="sub">Private Election Voting System</div>
+      </div>
+    </div>
+    <div class="cta">
+      <button class="btn btn-ghost">⚙️ Settings</button>
+    </div>
+  </header>
+
+  <!-- MODULES NAV -->
+  <nav class="modules">
+    <ul>
+      <li>
+        <a href="main.html">Dashboard</a>
+        <div class="dropdown">
+          <div class="label">Quick Access</div>
+          <a href="#">Analytics</a>
+          <a href="#">Alerts</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Candidates</a>
+        <div class="dropdown">
+          <a href="#">Candidate List</a>
+          <a href="#">Register Candidate</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Polling Stations</a>
+        <div class="dropdown">
+          <a href="#">Station Directory</a>
+          <a href="#">Assign Officers</a>
+          <a href="#">Logistics & Supplies</a>
+        </div>
+      </li>
+      <li>
+        <a href="results.html">Results</a>
+        <div class="dropdown">
+          <a href="results.html">Live Results</a>
+          <a href="#">Constituency Tally</a>
+          <a href="#">Historical Results</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Voter Enrollment</a>
+        <div class="dropdown">
+          <a href="newenroll.html">New Enrollment</a>
+          <a href="checkenroll.html">Check Enrollment</a>
+          <a href="#">Update Enrollment</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Schedule</a>
+        <div class="dropdown">
+          <a href="upcoming.html">Upcoming Elections</a>
+          <a href="ongoing.html">Ongoing Elections</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Help Desk</a>
+        <div class="dropdown">
+          <a href="contacts.html">Contact Us</a>
+          <a href="faq.html">FAQs</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Admin</a>
+        <div class="dropdown">
+          <a href="#">User Management</a>
+          <a href="#">Set Election</a>
+          <a href="#">Voting Panel</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <button class="back-button" onclick="history.back()">← <span>Back</span></button>
+    <h1>Check Voter Enrollment</h1>
+    <p>Verify your voter registration status and view your polling station information</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="check-container">
+    <!-- Search Form Section -->
+    <div class="check-form-section">
+      <div class="alert alert-info">
+        <div class="alert-icon">ℹ️</div>
+        <div class="alert-content">
+          <h4>Election Notice</h4>
+          <p>Verify your enrollment status before September 20, 2025 to ensure your participation in the upcoming election.</p>
+        </div>
+      </div>
+      
+      <div class="check-form">
+        <div class="search-tabs">
+          <div class="search-tab active" data-tab="voter-id">Search by Voter ID</div>
+          <div class="search-tab" data-tab="personal-info">Search by Personal Info</div>
+        </div>
+        
+        <!-- Voter ID Search Panel -->
+        <div class="search-panel active" id="voter-id-panel">
+          <h2 class="form-title">Enter Your Voter ID</h2>
+          <div class="form-group">
+            <label for="voterId" class="form-label">Voter ID Number *</label>
+            <input type="text" id="voterId" class="form-control" placeholder="Enter your Voter ID" required>
+            <span class="form-hint">Your Voter ID is a 10-digit number found on your Voter ID card</span>
+          </div>
+          <div class="form-footer">
+            <button type="button" id="searchByIdBtn" class="btn btn-red">Check Status</button>
+          </div>
+        </div>
+        
+        <!-- Personal Info Search Panel -->
+        <div class="search-panel" id="personal-info-panel">
+          <h2 class="form-title">Enter Your Personal Information</h2>
+          <div class="form-group">
+            <label for="firstName" class="form-label">First Name *</label>
+            <input type="text" id="firstName" class="form-control" placeholder="Enter your first name" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName" class="form-label">Last Name *</label>
+            <input type="text" id="lastName" class="form-control" placeholder="Enter your last name" required>
+          </div>
+          <div class="form-group">
+            <label for="dob" class="form-label">Date of Birth *</label>
+            <input type="date" id="dob" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="zipCode" class="form-label">ZIP Code *</label>
+            <input type="text" id="zipCode" class="form-control" placeholder="Enter your ZIP code" required>
+          </div>
+          <div class="form-footer">
+            <button type="button" id="searchByInfoBtn" class="btn btn-red">Check Status</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- No Results Message -->
+      <div class="no-results" id="noResults">
+        <h4>No Matching Records Found</h4>
+        <p>We couldn't find any voter registration matching your information. Please verify your details and try again, or contact voter support for assistance.</p>
+      </div>
+      
+      <!-- Results Card -->
+      <div class="result-card" id="resultCard">
+        <div class="result-header">
+          <div>
+            <div class="voter-name">John Doe</div>
+            <div class="voter-id">ID: VOTE8472951</div>
+          </div>
+          <div>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=VOTE8472951" alt="QR Code" height="50">
+          </div>
+        </div>
+        <div class="result-content">
+          <span class="result-status status-active">Active Registration</span>
+          
+          <div class="voter-details">
+            <div class="detail-group">
+              <div class="detail-label">Full Name</div>
+              <div class="detail-value">John Michael Doe</div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-label">Date of Birth</div>
+              <div class="detail-value">January 15, 1985</div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-label">Registration Address</div>
+              <div class="detail-value">123 Main Street, Anytown, CA 90210</div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-label">Registration Date</div>
+              <div class="detail-value">March 12, 2020</div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-label">Electoral District</div>
+              <div class="detail-value">District 5, Ward 8</div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-label">Voter Status</div>
+              <div class="detail-value">Eligible to Vote</div>
+            </div>
+          </div>
+          
+          <div class="polling-station">
+            <div class="station-title">Your Polling Station</div>
+            <div class="station-address">Civic Center Auditorium, 400 Central Avenue, Anytown, CA 90210</div>
+            <div class="station-hours">Open 7:00 AM - 8:00 PM on Election Day</div>
+          </div>
+          
+          <div class="qr-section">
+            <div class="qr-title">Your Voter QR Code</div>
+            <div class="qr-code">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=VOTE8472951" alt="Voter QR Code">
+            </div>
+            <div class="qr-text">Present this QR code at your polling station for faster check-in</div>
+          </div>
+        </div>
+        <div class="result-footer">
+          <div class="update-info">Last Verified: September 5, 2025</div>
+          <div class="result-actions">
+            <a href="#" id="printDetails">Print Details</a>
+            <a href="newenroll.html" id="updateInfo">Update Information</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="check-sidebar">
+      <!-- Info Card -->
+      <div class="info-card">
+        <div class="info-card-header">
+          How to Check Your Registration
+        </div>
+        <div class="info-card-content">
+          <ul class="info-steps">
+            <li class="info-step">
+              <div class="info-step-title">Enter Your Information</div>
+              <div class="info-step-text">Use either your Voter ID or personal details to look up your registration status.</div>
+            </li>
+            <li class="info-step">
+              <div class="info-step-title">Verify Your Identity</div>
+              <div class="info-step-text">Your information is checked against our secure voter database.</div>
+            </li>
+            <li class="info-step">
+              <div class="info-step-title">Review Your Status</div>
+              <div class="info-step-text">Check if your registration is active and view your assigned polling location.</div>
+            </li>
+            <li class="info-step">
+              <div class="info-step-title">Print or Save Your Information</div>
+              <div class="info-step-text">Keep a copy of your voter details for your records.</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Help Card -->
+      <div class="info-card">
+        <div class="info-card-header">
+          Need Assistance?
+        </div>
+        <div class="info-card-content">
+          <p style="margin-bottom: 15px;">If you have trouble finding your voter registration or need help:</p>
+          
+          <div class="contact-box">
+            <div class="contact-icon">📞</div>
+            <div class="contact-info">
+              <div class="contact-label">Voter Helpline</div>
+              <div>1800-VOTE-NOW (1800-8683-669)</div>
+            </div>
+          </div>
+          
+          <div class="contact-box">
+            <div class="contact-icon">📧</div>
+            <div class="contact-info">
+              <div class="contact-label">Email Support</div>
+              <div>voter-support@onlinevote.gov</div>
+            </div>
+          </div>
+          
+          <div class="contact-box">
+            <div class="contact-icon">🏢</div>
+            <div class="contact-info">
+              <div class="contact-label">Visit Local Office</div>
+              <div>Find your nearest election office <a href="#">here</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- New Voter Card -->
+      <div class="info-card">
+        <div class="info-card-header">
+          Not Registered Yet?
+        </div>
+        <div class="info-card-content">
+          <p style="margin-bottom: 15px;">If you're not yet registered to vote, you can easily register online:</p>
+          
+          <div style="text-align: center; margin-top: 20px;">
+            <a href="newenroll.html" class="btn btn-red" style="width: 100%;">Register to Vote Now</a>
+          </div>
+          
+          <p style="margin-top: 15px; font-size: 14px; color: var(--grey);">Registration deadline for the upcoming election is September 20, 2025.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching functionality
+    document.querySelectorAll('.search-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+        // Add active class to clicked tab
+        this.classList.add('active');
+        
+        // Hide all panels
+        document.querySelectorAll('.search-panel').forEach(panel => panel.classList.remove('active'));
+        // Show the corresponding panel
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId + '-panel').classList.add('active');
+      });
+    });
+    
+    // Search by Voter ID functionality
+    document.getElementById('searchByIdBtn').addEventListener('click', function() {
+      const voterId = document.getElementById('voterId').value;
+      
+      if (voterId.trim() === '') {
+        alert('Please enter your Voter ID');
+        return;
+      }
+      
+      // Demo: Show results if ID is entered (in a real app, this would check a database)
+      if (voterId.length >= 5) {
+        document.getElementById('resultCard').style.display = 'block';
+        document.getElementById('noResults').style.display = 'none';
+      } else {
+        document.getElementById('resultCard').style.display = 'none';
+        document.getElementById('noResults').style.display = 'block';
+      }
+    });
+    
+    // Search by Personal Info functionality
+    document.getElementById('searchByInfoBtn').addEventListener('click', function() {
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const dob = document.getElementById('dob').value;
+      const zipCode = document.getElementById('zipCode').value;
+      
+      if (firstName.trim() === '' || lastName.trim() === '' || dob.trim() === '' || zipCode.trim() === '') {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Demo: Show results if all fields are filled (in a real app, this would check a database)
+      if (firstName.length > 2 && lastName.length > 2 && zipCode.length >= 5) {
+        document.getElementById('resultCard').style.display = 'block';
+        document.getElementById('noResults').style.display = 'none';
+      } else {
+        document.getElementById('resultCard').style.display = 'none';
+        document.getElementById('noResults').style.display = 'block';
+      }
+    });
+    
+    // Print details functionality
+    document.getElementById('printDetails').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.print();
+    });
+  </script>
+
+</body>
+</html>

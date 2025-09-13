@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add 5 Dummy Candidates</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .candidate-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            font-weight: bold;
+        }
+        button:hover { background: #218838; }
+        .danger { background: #dc3545; }
+        .danger:hover { background: #c82333; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status { 
+            display: inline-block; 
+            padding: 3px 8px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            font-weight: bold;
+        }
+        .approved { background: #d4edda; color: #155724; }
+        .pending { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ Add 5 Dummy Candidates to Firebase</h1>
+        <p>This will add the 5 pre-designed candidates directly to your Firebase database.</p>
+        
+        <div id="candidates-preview">
+            <h3>📋 Candidates to be added:</h3>
+            
+            <div class="candidate-card">
+                <strong>1. Rajesh Kumar</strong> <span class="status approved">Approved</span><br>
+                Party: BJP | Constituency: Mumbai North | Age: 47
+            </div>
+            
+            <div class="candidate-card">
+                <strong>2. Priya Sharma</strong> <span class="status approved">Approved</span><br>
+                Party: INC | Constituency: New Delhi | Age: 40
+            </div>
+            
+            <div class="candidate-card">
+                <strong>3. Amit Patel</strong> <span class="status pending">Pending</span><br>
+                Party: AAP | Constituency: Ahmedabad West | Age: 42
+            </div>
+            
+            <div class="candidate-card">
+                <strong>4. Kavita Singh</strong> <span class="status approved">Approved</span><br>
+                Party: Independent | Constituency: Lucknow Central | Age: 45
+            </div>
+            
+            <div class="candidate-card">
+                <strong>5. Vikram Reddy</strong> <span class="status pending">Pending</span><br>
+                Party: Other | Constituency: Hyderabad South | Age: 49
+            </div>
+        </div>
+        
+        <button onclick="addAllCandidates()">🚀 Add All 5 Candidates to Firebase</button>
+        <button onclick="checkExistingCandidates()">👀 Check Existing Candidates</button>
+        <button onclick="clearAllCandidates()" class="danger">🗑️ Clear All Candidates</button>
+        
+        <div id="log" class="log">
+            Ready to add candidates...\n
+        </div>
+    </div>
+
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, push, set, get, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUq8kXNMY29rfqEf0APbnyDMf-fWTc7SU",
+            authDomain: "fingerprint-voting-syste-d926c.firebaseapp.com",
+            databaseURL: "https://fingerprint-voting-syste-d926c-default-rtdb.firebaseio.com",
+            projectId: "fingerprint-voting-syste-d926c",
+            storageBucket: "fingerprint-voting-syste-d926c.firebasestorage.app",
+            messagingSenderId: "458706704567",
+            appId: "1:458706704567:web:e1595ac2701de926219532",
+            measurementId: "G-4SEHLRDTCY"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        // 5 Dummy Candidates Data
+        const candidatesData = [
+            {
+                candidateId: "CAND647521001",
+                firstName: "Rajesh",
+                lastName: "Kumar",
+                dateOfBirth: "1978-03-15",
+                age: 47,
+                gender: "male",
+                email: "rajesh.kumar@email.com",
+                phone: "9876543210",
+                address: "123 MG Road, Sector 14",
+                city: "Mumbai",
+                state: "Maharashtra",
+                pinCode: "400001",
+                constituency: "Mumbai North",
+                politicalParty: "BJP",
+                symbol: "Lotus",
+                slogan: "Development for All",
+                manifesto: "My vision is to bring comprehensive development to Mumbai North constituency with focus on infrastructure, healthcare, and education. I pledge to work tirelessly for the people's welfare.",
+                education: "Post Graduate",
+                profession: "Business Owner",
+                experience: "Former Municipal Councilor for 6 years, active in community development projects. Led several initiatives for clean water access and road improvement in the constituency.",
+                photoBase64: null,
+                registrationDate: "2025-09-10T09:30:00Z",
+                status: "Approved",
+                votes: 0,
+                verified: true
+            },
+            {
+                candidateId: "CAND647521002",
+                firstName: "Priya",
+                lastName: "Sharma", 
+                dateOfBirth: "1985-07-22",
+                age: 40,
+                gender: "female",
+                email: "priya.sharma@email.com",
+                phone: "9876543211",
+                address: "456 Park Street, Block C",
+                city: "Delhi",
+                state: "Delhi",
+                pinCode: "110001",
+                constituency: "New Delhi",
+                politicalParty: "INC",
+                symbol: "Hand",
+                slogan: "Progress with Unity",
+                manifesto: "I stand for women's empowerment, youth employment, and environmental sustainability. My agenda focuses on creating opportunities for all while preserving our natural heritage.",
+                education: "Graduate",
+                profession: "Social Worker",
+                experience: "10 years of grassroots social work, former president of Women's Development Association. Worked extensively on education and healthcare initiatives in rural areas.",
+                photoBase64: null,
+                registrationDate: "2025-09-11T14:15:00Z",
+                status: "Approved",
+                votes: 0,
+                verified: true
+            },
+            {
+                candidateId: "CAND647521003",
+                firstName: "Amit",
+                lastName: "Patel",
+                dateOfBirth: "1982-12-03",
+                age: 42,
+                gender: "male",
+                email: "amit.patel@email.com",
+                phone: "9876543212",
+                address: "789 Gandhi Nagar, Phase 2",
+                city: "Ahmedabad",
+                state: "Gujarat",
+                pinCode: "380001",
+                constituency: "Ahmedabad West",
+                politicalParty: "AAP",
+                symbol: "Broom",
+                slogan: "Clean Politics, Better Future",
+                manifesto: "Fighting corruption and bringing transparency in governance. Focus on improving public services, healthcare infrastructure, and creating job opportunities for youth.",
+                education: "Professional",
+                profession: "Engineer",
+                experience: "No prior political experience but active in anti-corruption movements. Led several RTI campaigns and community welfare projects.",
+                photoBase64: null,
+                registrationDate: "2025-09-12T11:45:00Z",
+                status: "Pending",
+                votes: 0,
+                verified: false
+            },
+            {
+                candidateId: "CAND647521004",
+                firstName: "Kavita",
+                lastName: "Singh",
+                dateOfBirth: "1979-09-18",
+                age: 45,
+                gender: "female",
+                email: "kavita.singh@email.com",
+                phone: "9876543213",
+                address: "321 Civil Lines, Near Court",
+                city: "Lucknow",
+                state: "Uttar Pradesh",
+                pinCode: "226001",
+                constituency: "Lucknow Central",
+                politicalParty: "Independent",
+                symbol: "Book",
+                slogan: "Education First",
+                manifesto: "Education is the foundation of progress. I commit to improving educational infrastructure, supporting teachers, and ensuring every child has access to quality education regardless of their background.",
+                education: "Post Graduate",
+                profession: "Teacher",
+                experience: "25 years of teaching experience, former principal of government school. Worked with NGOs on literacy programs and skill development initiatives.",
+                photoBase64: null,
+                registrationDate: "2025-09-13T08:20:00Z",
+                status: "Approved",
+                votes: 0,
+                verified: true
+            },
+            {
+                candidateId: "CAND647521005",
+                firstName: "Vikram",
+                lastName: "Reddy",
+                dateOfBirth: "1976-05-30",
+                age: 49,
+                gender: "male",
+                email: "vikram.reddy@email.com",
+                phone: "9876543214",
+                address: "654 Jubilee Hills, Road No. 45",
+                city: "Hyderabad",
+                state: "Telangana",
+                pinCode: "500001",
+                constituency: "Hyderabad South",
+                politicalParty: "Other",
+                symbol: "Rising Sun",
+                slogan: "Innovation and Growth",
+                manifesto: "Leveraging technology for governance and development. Focus on IT infrastructure, startup ecosystem, and making Hyderabad a global technology hub while ensuring inclusive growth.",
+                education: "Post Graduate",
+                profession: "IT Executive",
+                experience: "Former CEO of tech company, active in startup mentoring and technology policy discussions. No direct political experience but strong business leadership background.",
+                photoBase64: null,
+                registrationDate: "2025-09-13T16:00:00Z",
+                status: "Pending",
+                votes: 0,
+                verified: false
+            }
+        ];
+
+        window.addAllCandidates = async function() {
+            log('🚀 Starting to add all 5 candidates to Firebase...');
+            
+            try {
+                const candidatesRef = ref(database, 'candidates');
+                let successCount = 0;
+                
+                for (let i = 0; i < candidatesData.length; i++) {
+                    const candidate = candidatesData[i];
+                    log(`➕ Adding candidate ${i + 1}/5: ${candidate.firstName} ${candidate.lastName}`);
+                    
+                    const newCandidateRef = push(candidatesRef);
+                    await set(newCandidateRef, candidate);
+                    
+                    successCount++;
+                    log(`✅ ${candidate.firstName} ${candidate.lastName} added successfully (${candidate.status})`);
+                }
+                
+                log(`🎉 SUCCESS! All ${successCount} candidates added to Firebase!`);
+                log(`🔄 Go to your admin panel → Candidates section → Click Refresh`);
+                
+                // Show success message
+                alert(`🎉 Success! All 5 candidates have been added to Firebase.\n\nGo to your admin panel and click on "Candidates" to see them!`);
+                
+            } catch (error) {
+                log(`❌ Error adding candidates: ${error.message}`);
+                console.error(error);
+                alert(`Error: ${error.message}`);
+            }
+        };
+
+        window.checkExistingCandidates = async function() {
+            log('🔍 Checking existing candidates in Firebase...');
+            
+            try {
+                const candidatesRef = ref(database, 'candidates');
+                const snapshot = await get(candidatesRef);
+                
+                if (snapshot.exists()) {
+                    const candidates = snapshot.val();
+                    const count = Object.keys(candidates).length;
+                    log(`📊 Found ${count} candidates in Firebase:`);
+                    
+                    Object.entries(candidates).forEach(([key, candidate], index) => {
+                        log(`${index + 1}. ${candidate.firstName} ${candidate.lastName} (${candidate.candidateId}) - ${candidate.politicalParty} - ${candidate.status}`);
+                    });
+                    
+                    if (count > 0) {
+                        log(`✅ Candidates exist! Go to admin panel → Candidates → Refresh to see them.`);
+                    }
+                } else {
+                    log('📭 No candidates found in Firebase database');
+                    log('🔧 Click "Add All 5 Candidates" to add them now');
+                }
+                
+            } catch (error) {
+                log(`❌ Error checking candidates: ${error.message}`);
+                console.error(error);
+            }
+        };
+
+        window.clearAllCandidates = async function() {
+            if (!confirm('⚠️ Are you sure you want to delete ALL candidates from Firebase?\n\nThis action cannot be undone!')) {
+                return;
+            }
+            
+            log('🗑️ Clearing all candidates from Firebase...');
+            
+            try {
+                const candidatesRef = ref(database, 'candidates');
+                await remove(candidatesRef);
+                
+                log('✅ All candidates cleared successfully!');
+                alert('All candidates have been removed from Firebase.');
+                
+            } catch (error) {
+                log(`❌ Error clearing candidates: ${error.message}`);
+                console.error(error);
+            }
+        };
+
+        // Initialize
+        window.addEventListener('load', () => {
+            log('🚀 Candidate addition tool loaded successfully');
+            log('📋 Ready to add 5 dummy candidates to Firebase');
+            log('👆 Click "Check Existing Candidates" first to see current state');
+        });
+    </script>
+</body>
+</html>

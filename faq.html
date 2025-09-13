@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frequently Asked Questions | Online Voting System</title>
+<style>
+  :root{
+    --navy:#101a3a;      /* deep header/nav color */
+    --navy-2:#182447;    /* secondary navy */
+    --red:#e23b3b;       /* accent red */
+    --grey:#6b7280;
+    --light:#f8fafc;
+    --card:#ffffff;
+    --shadow:0 10px 24px rgba(0,0,0,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color:#111827;background:var(--light);line-height:1.55;
+  }
+
+  /* Topbar */
+  .topbar{
+    background:var(--navy);
+    color:#e5e7eb;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 28px;font-size:14px
+  }
+  .topbar span{margin-right:18px}
+
+  /* Header */
+  .header{
+    background:#fff;border-bottom:1px solid #e5e7eb;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .logo{font-size:32px;color:var(--navy)}
+  .brand .title{font-size:22px;font-weight:800;color:var(--navy)}
+  .brand .sub{font-size:12px;color:var(--grey)}
+  .cta{
+    display:flex;gap:10px;align-items:center
+  }
+  .btn{
+    border:none;border-radius:28px;padding:10px 18px;font-weight:700;
+    cursor:pointer;transition:transform .15s ease, filter .2s ease
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{filter:brightness(.94)}
+  .btn-ghost{background:#eef2ff;color:var(--navy);border-radius:10px}
+
+  /* MODULES NAV (highlighted, bordered) */
+  .modules{
+    position:sticky;top:0;z-index:4000;  /* above slider */
+    background:linear-gradient(0deg, var(--navy-2), var(--navy));
+    border-top:4px solid var(--red);
+    border-bottom:4px solid var(--red);
+    box-shadow:var(--shadow)
+  }
+  .modules ul{list-style:none;display:flex;justify-content:center;flex-wrap:wrap}
+  .modules > ul > li{position:relative;margin:0 2px}
+  .modules a{
+    color:#fff;text-decoration:none;font-weight:600;letter-spacing:.2px;
+    display:block;padding:14px 18px;border-radius:8px;transition:background .25s ease
+  }
+  .modules > ul > li > a:hover{background:rgba(255,255,255,.08)}
+  .modules > ul > li > a::after{
+    content:'';display:block;height:3px;border-radius:2px;background:transparent;margin-top:8px
+  }
+  .modules > ul > li:hover > a::after{background:linear-gradient(90deg,#fff,var(--red))}
+  /* Dropdowns */
+  .dropdown{
+    position:absolute;left:0;top:100%;min-width:230px;background:#ffffff;
+    border-radius:10px;box-shadow:var(--shadow);
+    padding:8px;margin-top:8px;opacity:0;visibility:hidden;transform:translateY(8px);
+    transition:all .2s ease;z-index:5000  /* higher than everything */
+  }
+  .modules li:hover > .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+  .dropdown a{
+    color:#1f2937;padding:10px 12px;border-radius:8px;font-weight:600
+  }
+  .dropdown a:hover{background:#f3f4f6;color:var(--navy)}
+  .dropdown .label{font-size:11px;color:#6b7280;padding:6px 12px 4px}
+
+  /* FAQ Section Styles */
+  .page-title {
+    text-align: center;
+    padding: 40px 0 20px;
+    background: linear-gradient(to right, var(--navy), var(--navy-2));
+    color: white;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  
+  .page-title h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+  
+  .page-title p {
+    font-size: 18px;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .page-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: var(--red);
+    border-radius: 2px;
+  }
+  
+  .faq-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+  
+  .faq-categories {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  
+  .category-btn {
+    background: white;
+    border: 2px solid var(--navy);
+    color: var(--navy);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .category-btn:hover {
+    background: var(--navy);
+    color: white;
+  }
+  
+  .category-btn.active {
+    background: var(--navy);
+    color: white;
+  }
+  
+  .faq-group {
+    margin-bottom: 20px;
+  }
+  
+  .faq-group-title {
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--red);
+  }
+  
+  .faq-item {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  
+  .faq-question {
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: var(--navy);
+    transition: background 0.3s;
+  }
+  
+  .faq-question:hover {
+    background: #f5f7fa;
+  }
+  
+  .faq-question::after {
+    content: "+";
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--red);
+    transition: transform 0.3s ease;
+  }
+  
+  .faq-item.active .faq-question::after {
+    transform: rotate(45deg);
+  }
+  
+  .faq-answer {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.5s ease;
+  }
+  
+  .faq-item.active .faq-answer {
+    padding: 0 20px 20px;
+    max-height: 1000px;
+  }
+  
+  .faq-answer p {
+    margin-bottom: 10px;
+  }
+  
+  .faq-answer ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .faq-answer li {
+    margin-bottom: 5px;
+  }
+  
+  .search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto 40px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 15px 20px;
+    padding-left: 50px;
+    border: none;
+    border-radius: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: 16px;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--grey);
+    font-size: 20px;
+  }
+  
+  .not-found-message {
+    text-align: center;
+    padding: 30px;
+    color: var(--grey);
+    display: none;
+  }
+  
+  .highlight {
+    background-color: rgba(226,59,59,0.2);
+    padding: 0 2px;
+  }
+  
+  .support-cta {
+    text-align: center;
+    margin-top: 50px;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+  
+  .support-cta h3 {
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 15px;
+  }
+  
+  .support-cta p {
+    color: var(--grey);
+    margin-bottom: 20px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .topbar {
+      flex-direction: column;
+      padding: 10px;
+    }
+    
+    .header {
+      flex-direction: column;
+      padding: 15px;
+      gap: 15px;
+    }
+    
+    .modules ul {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .modules > ul > li {
+      width: 100%;
+      text-align: center;
+    }
+    
+    .dropdown {
+      position: static;
+      width: 100%;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      box-shadow: none;
+      margin-top: 0;
+      display: none;
+    }
+    
+    .modules li:hover > .dropdown {
+      display: block;
+    }
+    
+    .page-title h1 {
+      font-size: 28px;
+    }
+    
+    .page-title p {
+      font-size: 16px;
+      padding: 0 20px;
+    }
+    
+    .faq-question {
+      padding: 15px;
+      font-size: 15px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <span>📧 contact@onlinevote.gov</span>
+      <span>📞 1800 VOTE NOW</span>
+      <span>🌐 Private Voting System</span>
+    </div>
+    <div>⏰ Last Updated: Sep 3, 2025 · 09:30 AM</div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="logo">🗳️</div>
+      <div>
+        <div class="title">Online Voting System</div>
+        <div class="sub">Private Election Voting System</div>
+      </div>
+    </div>
+    <div class="cta">
+      <button class="btn btn-ghost">⚙️ Settings</button>
+    </div>
+  </header>
+
+  <!-- MODULES BAR (with dropdowns) -->
+  <nav class="modules">
+    <ul>
+      <li>
+        <a href="main.html">Dashboard</a>
+        <div class="dropdown">
+          <div class="label">Quick Access</div>
+          <a href="#">Analytics</a>
+          <a href="#">Alerts</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Candidates</a>
+        <div class="dropdown">
+          <a href="#">Candidate List</a>
+          <a href="#">Register Candidate</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Polling Stations</a>
+        <div class="dropdown">
+          <a href="#">Station Directory</a>
+          <a href="#">Assign Officers</a>
+          <a href="#">Logistics & Supplies</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Results</a>
+        <div class="dropdown">
+          <a href="#">Live Results</a>
+          <a href="#">Constituency Tally</a>
+          <a href="#">Historical Results</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Voter Enrollment</a>
+        <div class="dropdown">
+          <a href="#">New Enrollment</a>
+          <a href="#">Check Enrollment</a>
+          <a href="#">Update Enrollment</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Schedule</a>
+        <div class="dropdown">
+          <a href="#">Upcoming Elections</a>
+          <a href="#">Ongoing Elections</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Help Desk</a>
+        <div class="dropdown">
+          <a href="contacts.html">Contact Us</a>
+          <a href="faq.html" class="active"><span>FAQs</span></a>
+          <a href="#">About EMS</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Admin</a>
+        <div class="dropdown">
+          <a href="#">User Management</a>
+          <a href="#">Set Election</a>
+          <a href="#">Voting Panel</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- PAGE TITLE -->
+  <div class="page-title">
+    <h1>Frequently Asked Questions</h1>
+    <p>Find answers to common questions about the Online Voting System</p>
+  </div>
+
+  <!-- FAQ CONTENT -->
+  <div class="faq-container">
+    <!-- Search Box -->
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchFaq" class="search-input" placeholder="Search for questions or keywords...">
+    </div>
+
+    <!-- Category Filters -->
+    <div class="faq-categories">
+      <button class="category-btn active" data-category="all">All Questions</button>
+      <button class="category-btn" data-category="registration">Voter Registration</button>
+      <button class="category-btn" data-category="voting">Voting Process</button>
+      <button class="category-btn" data-category="security">Security & Privacy</button>
+      <button class="category-btn" data-category="technical">Technical Issues</button>
+    </div>
+
+    <div id="notFound" class="not-found-message">
+      <h3>No matching questions found</h3>
+      <p>Try different keywords or browse through the categories</p>
+    </div>
+
+    <!-- Registration FAQs -->
+    <div class="faq-group" data-group="registration">
+      <h2 class="faq-group-title">Voter Registration</h2>
+      
+      <div class="faq-item" data-keywords="register registration sign up signup enroll">
+        <div class="faq-question">How do I register to vote using the online system?</div>
+        <div class="faq-answer">
+          <p>To register as a voter in our Online Voting System:</p>
+          <ol>
+            <li>Click on the "Voter Enrollment" tab in the main navigation</li>
+            <li>Select "New Enrollment" from the dropdown menu</li>
+            <li>Fill out the registration form with your personal details</li>
+            <li>Upload the required identification documents (valid government ID)</li>
+            <li>Complete the biometric verification process if prompted</li>
+            <li>Submit your application and note your application reference number</li>
+          </ol>
+          <p>Once submitted, your application will be reviewed, and you'll receive a confirmation email within 48 hours.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="documents identification ID proof requirements">
+        <div class="faq-question">What documents do I need to register as a voter?</div>
+        <div class="faq-answer">
+          <p>To complete your voter registration, you'll need to provide:</p>
+          <ul>
+            <li>A valid government-issued photo ID (passport, driver's license, or national ID card)</li>
+            <li>Proof of residence (utility bill, bank statement, or official government correspondence not older than 3 months)</li>
+            <li>Your Social Security Number or National Identification Number</li>
+            <li>A recent digital photograph (taken within the last 6 months)</li>
+            <li>Valid email address and mobile phone number for verification</li>
+          </ul>
+          <p>All documents must be scanned or photographed clearly and uploaded in JPG, PNG, or PDF format.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="update change details address information modification">
+        <div class="faq-question">How can I update my voter registration information?</div>
+        <div class="faq-answer">
+          <p>To update your voter registration information:</p>
+          <ol>
+            <li>Log in to your voter account using your Voter ID and password</li>
+            <li>Navigate to the "Voter Enrollment" section</li>
+            <li>Select "Update Enrollment" from the dropdown</li>
+            <li>Choose the information you need to update (address, contact details, etc.)</li>
+            <li>Make the necessary changes and upload any supporting documents if required</li>
+            <li>Submit your request</li>
+          </ol>
+          <p>Updates typically take 24-72 hours to process. You'll receive a confirmation notification once your information has been updated.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="verify verification status check">
+        <div class="faq-question">How do I check my voter registration status?</div>
+        <div class="faq-answer">
+          <p>To check your voter registration status:</p>
+          <ol>
+            <li>Click on "Voter Enrollment" in the main navigation</li>
+            <li>Select "Check Enrollment" from the dropdown</li>
+            <li>Enter your Voter ID number or application reference number</li>
+            <li>Provide your date of birth for verification</li>
+            <li>Click "Check Status"</li>
+          </ol>
+          <p>The system will display your current registration status, which could be:</p>
+          <ul>
+            <li><strong>Pending Verification:</strong> Your application is being reviewed</li>
+            <li><strong>Active:</strong> You're registered and eligible to vote</li>
+            <li><strong>Information Required:</strong> Additional information or documents needed</li>
+            <li><strong>Rejected:</strong> Your application did not meet the requirements</li>
+          </ul>
+          <p>If your application was rejected, you'll see the reason and instructions for reapplying.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Voting Process FAQs -->
+    <div class="faq-group" data-group="voting">
+      <h2 class="faq-group-title">Voting Process</h2>
+      
+      <div class="faq-item" data-keywords="vote cast ballot election day">
+        <div class="faq-question">How do I cast my vote on election day?</div>
+        <div class="faq-answer">
+          <p>On election day, you can cast your vote using the following steps:</p>
+          <ol>
+            <li>Log in to the Online Voting System using your Voter ID and secure password</li>
+            <li>Complete the two-factor authentication process (SMS code or biometric verification)</li>
+            <li>Review the list of available elections you're eligible to participate in</li>
+            <li>Select the election you wish to vote in</li>
+            <li>Review the candidates and their information</li>
+            <li>Make your selection by clicking on your preferred candidate</li>
+            <li>Review your selection on the confirmation screen</li>
+            <li>Submit your vote using your digital signature or verification code</li>
+          </ol>
+          <p>After submission, you'll receive a vote receipt with a unique identifier. This receipt confirms your vote was recorded but does not reveal your choice to maintain ballot secrecy.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="hours timing schedule when">
+        <div class="faq-question">What are the voting hours on election day?</div>
+        <div class="faq-answer">
+          <p>The Online Voting System is available 24 hours during the designated election period, typically from 12:01 AM to 11:59 PM on election day.</p>
+          <p>For major national elections, we often extend the voting period to 48 hours to accommodate different time zones and work schedules, ensuring maximum participation.</p>
+          <p>The specific voting hours for each election are announced at least 30 days before the election date and are displayed prominently on the system dashboard and election notifications.</p>
+          <p>If you're unable to vote during the standard voting period due to exceptional circumstances, you may be eligible for early voting. Please check the "Schedule" section for early voting options and eligibility criteria.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="receipt confirmation verify vote">
+        <div class="faq-question">How do I know my vote was recorded correctly?</div>
+        <div class="faq-answer">
+          <p>Our system provides multiple ways to verify your vote was recorded correctly:</p>
+          <ol>
+            <li><strong>Vote Receipt:</strong> Immediately after voting, you'll receive a digital receipt with a unique identifier code. This receipt confirms your participation without revealing your specific choice.</li>
+            <li><strong>Blockchain Verification:</strong> Your vote is recorded on a secure blockchain. You can use your receipt number to verify your vote was added to the blockchain through our verification portal.</li>
+            <li><strong>Vote Status Check:</strong> You can log back into the system during or after the election to confirm your voting status shows as "Completed."</li>
+            <li><strong>Email/SMS Confirmation:</strong> If you've enabled notifications, you'll receive a confirmation message after your vote is successfully recorded.</li>
+          </ol>
+          <p>For security and privacy reasons, the system never shows which candidate you voted for after your ballot is cast, maintaining the secrecy of your ballot.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="assistance help disability accessible">
+        <div class="faq-question">What if I need assistance with the voting process?</div>
+        <div class="faq-answer">
+          <p>We provide several options for voters who need assistance:</p>
+          <ul>
+            <li><strong>Live Support:</strong> Our help desk is available 24/7 during election periods via chat, phone, or video call to assist with technical issues.</li>
+            <li><strong>Accessibility Features:</strong> The system includes screen reader compatibility, keyboard navigation, high contrast modes, and text resizing options.</li>
+            <li><strong>Authorized Assistant:</strong> Voters with disabilities can register an authorized person to assist them. This must be pre-approved through the "Accessibility Assistance" form.</li>
+            <li><strong>In-Person Help:</strong> Voters can schedule an appointment at their local election office for in-person assistance with the online voting process.</li>
+            <li><strong>Tutorial Videos:</strong> Step-by-step guides and videos are available in multiple languages and with closed captions.</li>
+          </ul>
+          <p>To request specialized assistance, please contact our Voter Support team at 1800-VOTE-NOW at least 72 hours before you plan to vote.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Security & Privacy FAQs -->
+    <div class="faq-group" data-group="security">
+      <h2 class="faq-group-title">Security & Privacy</h2>
+      
+      <div class="faq-item" data-keywords="secure security safe protection">
+        <div class="faq-question">How secure is the Online Voting System?</div>
+        <div class="faq-answer">
+          <p>Our Online Voting System implements multiple layers of security:</p>
+          <ul>
+            <li><strong>End-to-End Encryption:</strong> All data transmission is secured with 256-bit encryption</li>
+            <li><strong>Blockchain Technology:</strong> Votes are recorded on an immutable blockchain ledger that prevents tampering</li>
+            <li><strong>Multi-Factor Authentication:</strong> Voters must verify their identity through multiple methods</li>
+            <li><strong>Biometric Verification:</strong> Fingerprint or facial recognition adds an additional security layer</li>
+            <li><strong>Independent Auditing:</strong> The system undergoes regular security audits by independent cybersecurity firms</li>
+            <li><strong>Distributed System Architecture:</strong> Prevents single points of failure or attack</li>
+            <li><strong>Real-time Monitoring:</strong> 24/7 surveillance of system activity for unusual patterns</li>
+          </ul>
+          <p>The system has successfully passed rigorous penetration testing and complies with international election security standards ISO/TS 17582 and ISO 27001.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="privacy anonymous secret ballot confidential">
+        <div class="faq-question">Is my vote kept private and anonymous?</div>
+        <div class="faq-answer">
+          <p>Yes, your vote is kept private and anonymous through several technical measures:</p>
+          <ul>
+            <li><strong>Vote Anonymization:</strong> Once your identity is verified, your personal information is separated from your ballot choice</li>
+            <li><strong>Cryptographic Separation:</strong> Advanced cryptography ensures no connection can be made between your identity and your vote</li>
+            <li><strong>Zero-Knowledge Proofs:</strong> The system verifies you're eligible to vote without revealing who you voted for</li>
+            <li><strong>No Stored Connections:</strong> The database architecture physically separates identity verification from vote records</li>
+            <li><strong>Minimum Data Retention:</strong> Personal identification data is minimized and only kept for the legally required period</li>
+          </ul>
+          <p>Even system administrators cannot link voters to their specific ballot choices. Our system is designed to maintain the fundamental democratic principle of the secret ballot.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="hacked tampering manipulation fraud">
+        <div class="faq-question">Can the voting results be manipulated or hacked?</div>
+        <div class="faq-answer">
+          <p>Our system has multiple safeguards against manipulation or hacking:</p>
+          <ol>
+            <li><strong>Blockchain Immutability:</strong> Once recorded, votes cannot be altered or deleted</li>
+            <li><strong>Distributed Consensus:</strong> Multiple independent nodes must verify any transaction</li>
+            <li><strong>Public Verifiability:</strong> The blockchain ledger can be publicly audited without compromising voter privacy</li>
+            <li><strong>Cryptographic Integrity:</strong> Any attempt to alter votes would be mathematically detected</li>
+            <li><strong>Air-Gapped Systems:</strong> Critical components are isolated from public networks</li>
+            <li><strong>Independent Verification:</strong> Results are cross-checked through multiple counting methods</li>
+          </ol>
+          <p>Additionally, we conduct pre-election security testing, real-time monitoring during elections, and post-election audits to ensure the integrity of results. Any unusual patterns trigger immediate investigation by our security team and independent observers.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Technical Issues FAQs -->
+    <div class="faq-group" data-group="technical">
+      <h2 class="faq-group-title">Technical Issues</h2>
+      
+      <div class="faq-item" data-keywords="login password forgot reset">
+        <div class="faq-question">I forgot my password. How do I reset it?</div>
+        <div class="faq-answer">
+          <p>To reset your password:</p>
+          <ol>
+            <li>Click on the "Forgot Password" link on the login page</li>
+            <li>Enter your registered email address or Voter ID</li>
+            <li>Select your preferred verification method (email or SMS)</li>
+            <li>Enter the verification code sent to your email or phone</li>
+            <li>Create a new password following the security requirements</li>
+            <li>Confirm your new password and submit</li>
+          </ol>
+          <p>For security reasons, if you've attempted to reset your password multiple times without success, your account may be temporarily locked. In this case, please contact our Support team at 1800-VOTE-NOW for assistance.</p>
+          <p>Note: Password resets are disabled during the final 24 hours before an election. If you need emergency assistance during this period, you must contact the support team with additional verification.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="browser compatible compatibility requirements">
+        <div class="faq-question">What are the system requirements for using the Online Voting System?</div>
+        <div class="faq-answer">
+          <p>Our Online Voting System is designed to work on a wide range of devices and browsers. Here are the minimum requirements:</p>
+          
+          <p><strong>Web Browsers (latest versions recommended):</strong></p>
+          <ul>
+            <li>Google Chrome (version 90+)</li>
+            <li>Mozilla Firefox (version 88+)</li>
+            <li>Apple Safari (version 14+)</li>
+            <li>Microsoft Edge (version 90+)</li>
+          </ul>
+          
+          <p><strong>Operating Systems:</strong></p>
+          <ul>
+            <li>Windows 10/11</li>
+            <li>macOS 10.14 (Mojave) or newer</li>
+            <li>iOS 14+ (for iPhones and iPads)</li>
+            <li>Android 9.0+ (for Android devices)</li>
+            <li>Linux (Ubuntu 18.04+, Fedora 32+)</li>
+          </ul>
+          
+          <p><strong>Internet Connection:</strong></p>
+          <ul>
+            <li>Minimum 1 Mbps stable internet connection</li>
+            <li>3G mobile connection or better for mobile voting</li>
+          </ul>
+          
+          <p><strong>Additional Requirements:</strong></p>
+          <ul>
+            <li>Cookies and JavaScript must be enabled</li>
+            <li>PDF viewer for documentation</li>
+            <li>Camera access for biometric verification (if applicable)</li>
+            <li>Support for two-factor authentication</li>
+          </ul>
+          
+          <p>For optimal performance and security, we recommend using the latest version of your preferred browser and operating system.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="error page crash bug problem">
+        <div class="faq-question">What should I do if I encounter an error or the system crashes?</div>
+        <div class="faq-answer">
+          <p>If you encounter an error or system crash while using the Online Voting System, please follow these steps:</p>
+          
+          <ol>
+            <li><strong>Don't panic</strong> - Your information is regularly saved, and no vote is lost due to technical issues</li>
+            <li><strong>Take a screenshot</strong> of the error message if possible</li>
+            <li><strong>Refresh the page</strong> and try again - many issues resolve with a simple refresh</li>
+            <li><strong>Clear your browser cache</strong> and cookies, then restart your browser</li>
+            <li><strong>Try a different browser</strong> or device if the problem persists</li>
+            <li><strong>Check your internet connection</strong> to ensure it's stable</li>
+          </ol>
+          
+          <p>If these steps don't resolve the issue:</p>
+          <ol>
+            <li>Contact our Technical Support team at 1800-TECH-HELP (1800-832-4435)</li>
+            <li>Use the live chat support available on the website</li>
+            <li>Email a description of the problem and screenshots to support@onlinevote.gov</li>
+          </ol>
+          
+          <p>During high-traffic periods (especially on election days), our support team prioritizes voting-related issues. Please provide your Voter ID and the specific action you were attempting when the error occurred to help us resolve your issue more quickly.</p>
+        </div>
+      </div>
+      
+      <div class="faq-item" data-keywords="mobile phone tablet smartphone app">
+        <div class="faq-question">Can I vote using my mobile device?</div>
+        <div class="faq-answer">
+          <p>Yes, you can vote using your mobile device. Our Online Voting System is fully responsive and optimized for smartphones and tablets. You have two options:</p>
+          
+          <p><strong>Mobile Web Browser:</strong></p>
+          <ul>
+            <li>Visit the standard voting website at onlinevote.gov using your mobile browser</li>
+            <li>The interface will automatically adapt to your screen size</li>
+            <li>All features are available through the mobile web version</li>
+          </ul>
+          
+          <p><strong>Mobile App:</strong></p>
+          <ul>
+            <li>Download our official "Secure Vote" app from the Apple App Store or Google Play Store</li>
+            <li>The app provides enhanced security features and a streamlined interface</li>
+            <li>Biometric authentication (fingerprint/face recognition) is available on compatible devices</li>
+            <li>The app works in low-bandwidth conditions and includes offline capabilities</li>
+          </ul>
+          
+          <p><strong>Security Note:</strong> Whether using a browser or the app, all mobile voting is secured with the same level of encryption and protection as desktop voting. Always ensure you're using official channels and verify the authenticity of any app before downloading.</p>
+          
+          <p>For optimal experience on mobile devices, we recommend:</p>
+          <ul>
+            <li>Using the latest version of your mobile operating system</li>
+            <li>Ensuring your device has at least 20% battery life or is connected to power</li>
+            <li>Being connected to a stable Wi-Fi network if possible</li>
+            <li>Closing other apps running in the background</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support CTA -->
+    <div class="support-cta">
+      <h3>Couldn't find what you're looking for?</h3>
+      <p>Our dedicated support team is ready to assist you with any questions or concerns about the Online Voting System.</p>
+      <div class="cta-buttons">
+        <a href="contacts.html" class="btn btn-red">Contact Support</a>
+        <button class="btn btn-ghost">View User Guide</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // FAQ Toggle Functionality
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const item = question.parentElement;
+        const isActive = item.classList.contains('active');
+        
+        // Close all other open items
+        document.querySelectorAll('.faq-item.active').forEach(activeItem => {
+          if (activeItem !== item) {
+            activeItem.classList.remove('active');
+          }
+        });
+        
+        // Toggle current item
+        item.classList.toggle('active', !isActive);
+      });
+    });
+
+    // Category Filtering
+    document.querySelectorAll('.category-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const category = button.getAttribute('data-category');
+        
+        // Update active button
+        document.querySelectorAll('.category-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        
+        // Show/hide appropriate groups
+        if (category === 'all') {
+          document.querySelectorAll('.faq-group').forEach(group => {
+            group.style.display = 'block';
+          });
+        } else {
+          document.querySelectorAll('.faq-group').forEach(group => {
+            if (group.getAttribute('data-group') === category) {
+              group.style.display = 'block';
+            } else {
+              group.style.display = 'none';
+            }
+          });
+        }
+        
+        // Reset search
+        document.getElementById('searchFaq').value = '';
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.style.display = 'block';
+          
+          // Remove any highlights
+          const text = item.innerHTML;
+          item.innerHTML = text.replace(/<span class="highlight">(.+?)<\/span>/g, '$1');
+        });
+        
+        document.getElementById('notFound').style.display = 'none';
+      });
+    });
+
+    // Search Functionality
+    document.getElementById('searchFaq').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      let foundItems = 0;
+      
+      if (searchTerm === '') {
+        // Reset all items to visible when search is cleared
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.style.display = 'block';
+          
+          // Remove any highlights
+          const text = item.innerHTML;
+          item.innerHTML = text.replace(/<span class="highlight">(.+?)<\/span>/g, '$1');
+        });
+        
+        document.getElementById('notFound').style.display = 'none';
+        return;
+      }
+      
+      // Show all groups for searching
+      document.querySelectorAll('.faq-group').forEach(group => {
+        group.style.display = 'block';
+      });
+      
+      // Reset category buttons
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector('.category-btn[data-category="all"]').classList.add('active');
+      
+      // Search through items
+      document.querySelectorAll('.faq-item').forEach(item => {
+        const question = item.querySelector('.faq-question').textContent.toLowerCase();
+        const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+        const keywords = item.getAttribute('data-keywords')?.toLowerCase() || '';
+        
+        if (question.includes(searchTerm) || answer.includes(searchTerm) || keywords.includes(searchTerm)) {
+          item.style.display = 'block';
+          foundItems++;
+          
+          // Highlight the matching text
+          const highlightText = (element) => {
+            const text = element.innerHTML;
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            element.innerHTML = text.replace(regex, '<span class="highlight">$1</span>');
+          };
+          
+          highlightText(item.querySelector('.faq-question'));
+          highlightText(item.querySelector('.faq-answer'));
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      // Show or hide the "not found" message
+      document.getElementById('notFound').style.display = foundItems === 0 ? 'block' : 'none';
+    });
+
+    // Open first FAQ item on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const firstItem = document.querySelector('.faq-item');
+      if (firstItem) {
+        firstItem.classList.add('active');
+      }
+    });
+  </script>
+
+</body>
+</html>

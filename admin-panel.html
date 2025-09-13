@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Panel | Online Voting System</title>
+<style>
+  :root{
+    --navy:#10      <!-- Dashboard Section -->
+      <div id="dashboard-section" class="content-section">
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">Overview of your voting system</p>
+
+        <!-- Control Panel -->
+        <div style="margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: var(--shadow);">
+          <h3 style="margin: 0 0 10px 0; color: var(--navy);">Database Controls</h3>
+          <button onclick="forceRefresh()" style="background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-right: 10px; cursor: pointer;">🔄 Force Refresh</button>
+          <button onclick="testConnection()" style="background: var(--warning); color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-right: 10px; cursor: pointer;">🔗 Test Connection</button>
+          <button onclick="clearCache()" style="background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-right: 10px; cursor: pointer;">🧹 Clear Cache</button>
+          <button onclick="toggleDebug()" style="background: var(--navy); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">🔍 Debug Mode</button>
+        </div>
+
+        <!-- Debug Console (initially hidden) -->
+        <div id="debug-console" style="display: none; margin-bottom: 20px; padding: 15px; background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 8px;">
+          <h4 style="margin: 0 0 10px 0; color: var(--navy);">Debug Console</h4>
+          <div id="debug-output" style="background: #1a1a1a; color: #00ff00; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Statistics Cards -->
+    --navy-2:#182447;
+    --red:#e23b3b;
+    --grey:#6b7280;
+    --light:#f8fafc;
+    --card:#ffffff;
+    --shadow:0 10px 24px rgba(0,0,0,.15);
+    --success:#10b981;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+  }
+  
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color:#111827;background:var(--light);line-height:1.55;
+    overflow-x: hidden;
+  }
+
+  /* Admin Header */
+  .admin-header{
+    background:linear-gradient(135deg, var(--navy), var(--navy-2));
+    color:#fff;padding:20px 28px;
+    display:flex;justify-content:space-between;align-items:center;
+    box-shadow:var(--shadow);
+  }
+  .admin-brand{display:flex;align-items:center;gap:15px}
+  .admin-brand .logo{font-size:36px}
+  .admin-brand .title{font-size:24px;font-weight:800;color:#fff}
+  .admin-brand .sub{font-size:14px;color:#f3f4f6;margin-top:4px}
+  .admin-user{display:flex;align-items:center;gap:15px}
+  .admin-user img{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}
+  .logout-btn{background:var(--red);color:#fff;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:600}
+
+  /* Layout */
+  .admin-layout{display:flex;min-height:calc(100vh - 80px)}
+  
+  /* Sidebar */
+  .admin-sidebar{
+    width:280px;background:#fff;box-shadow:2px 0 10px rgba(0,0,0,.1);
+    padding:20px 0;position:sticky;top:0;height:calc(100vh - 80px);overflow-y:auto;
+  }
+  .sidebar-section{margin-bottom:30px}
+  .sidebar-title{
+    color:#111827;font-size:12px;font-weight:700;text-transform:uppercase;
+    padding:0 20px;margin-bottom:10px;letter-spacing:.5px;
+  }
+  .sidebar-menu{list-style:none}
+  .sidebar-menu li{margin:2px 0}
+  .sidebar-menu a{
+    display:flex;align-items:center;gap:12px;padding:12px 20px;
+    color:#111827;text-decoration:none;transition:all .2s ease;
+  }
+  .sidebar-menu a:hover, .sidebar-menu a.active{
+    background:var(--light);color:var(--navy);border-right:3px solid var(--red);
+  }
+  .sidebar-menu .icon{width:20px;text-align:center;font-size:16px}
+
+  /* Main Content */
+  .admin-main{flex:1;padding:30px;background:var(--light)}
+  .page-title{font-size:28px;color:var(--navy);margin-bottom:8px}
+  .page-subtitle{color:#111827;margin-bottom:30px}
+
+  /* Dashboard Cards */
+  .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:20px;margin-bottom:30px}
+  .dashboard-card{
+    background:#fff;border-radius:12px;padding:24px;box-shadow:var(--shadow);
+    transition:transform .2s ease;position:relative;overflow:hidden;
+  }
+  .dashboard-card:hover{transform:translateY(-2px)}
+  .dashboard-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  }
+  .dashboard-card.voters::before{background:var(--success)}
+  .dashboard-card.elections::before{background:var(--red)}
+  .dashboard-card.stations::before{background:var(--warning)}
+  .dashboard-card.votes::before{background:var(--navy)}
+
+  .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+  .card-title{font-size:14px;color:var(--grey);text-transform:uppercase;font-weight:600;letter-spacing:.5px}
+  .card-icon{font-size:24px;color:#111827}
+  .card-value{font-size:32px;font-weight:800;color:var(--navy);margin-bottom:8px}
+  .card-change{font-size:14px;display:flex;align-items:center;gap:4px}
+  .card-change.positive{color:var(--success)}
+  .card-change.negative{color:var(--danger)}
+
+  /* Tables */
+  .data-table-container{background:#fff;border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:30px}
+  .table-header{
+    background:var(--navy);color:#fff;padding:20px 24px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .table-title{font-size:18px;font-weight:700}
+  .table-actions{display:flex;gap:10px}
+  .btn{
+    border:none;border-radius:8px;padding:8px 16px;font-weight:600;
+    cursor:pointer;transition:all .2s ease;font-size:14px;
+  }
+  .btn-primary{background:var(--red);color:#fff}
+  .btn-secondary{background:var(--light);color:var(--navy)}
+  .btn:hover{transform:translateY(-1px);filter:brightness(.95)}
+
+  .data-table{width:100%;border-collapse:collapse}
+  .data-table th{
+    background:var(--light);color:var(--navy);font-weight:700;
+    padding:16px 20px;text-align:left;font-size:14px;
+  }
+  .data-table td{padding:16px 20px;border-bottom:1px solid #e5e7eb}
+  .data-table tr:hover{background:rgba(248,250,252,.5)}
+
+  /* Status badges */
+  .status-badge{
+    display:inline-block;padding:4px 8px;border-radius:12px;
+    font-size:12px;font-weight:600;text-transform:uppercase;
+  }
+  .status-active{background:#d1fae5;color:#065f46}
+  .status-inactive{background:#fef2f2;color:#991b1b}
+  .status-pending{background:#fef3c7;color:#92400e}
+  .status-upcoming{background:#dbeafe;color:#1e40af}
+
+  /* Action buttons */
+  .action-btn{
+    background:none;border:none;padding:6px;border-radius:6px;
+    cursor:pointer;transition:background .2s ease;color:var(--grey);
+  }
+  .action-btn:hover{background:var(--light)}
+  .action-btn.edit:hover{background:#dbeafe;color:#2563eb}
+  .action-btn.delete:hover{background:#fee2e2;color:#dc2626}
+
+  /* Modal */
+  .modal{
+    display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;
+  }
+  .modal.show{display:flex}
+  .modal-content{
+    background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;
+    max-height:80vh;overflow-y:auto;
+  }
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .modal-title{font-size:20px;font-weight:700;color:var(--navy)}
+  .modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--grey)}
+
+  /* Forms */
+  .form-group{margin-bottom:20px}
+  .form-label{display:block;margin-bottom:8px;font-weight:600;color:var(--navy)}
+  .form-input, .form-select, .form-textarea{
+    width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;
+    font-size:14px;transition:border-color .2s ease;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus{
+    outline:none;border-color:var(--red);
+  }
+  .form-textarea{resize:vertical;min-height:80px}
+
+  /* Loading states */
+  .loading{text-align:center;padding:40px;color:var(--grey)}
+  .loading::before{
+    content:'⏳';font-size:32px;display:block;margin-bottom:10px;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .admin-layout{flex-direction:column}
+    .admin-sidebar{width:100%;height:auto;position:static}
+    .dashboard-grid{grid-template-columns:1fr}
+    .admin-header{flex-direction:column;gap:15px;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div class="admin-brand">
+      <div class="logo">🛡️</div>
+      <div>
+        <div class="title">Admin Panel</div>
+        <div class="sub">Online Voting System Management</div>
+      </div>
+    </div>
+    <div class="admin-user">
+      <div>
+        <div style="font-weight:700">Administrator</div>
+        <div style="font-size:12px;color:#d1d5db">admin@elections.gov</div>
+      </div>
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2RjEiLz4KPGV4dCB4PSIyMCIgeT0iMjQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkE8L3RleHQ+Cjwvc3ZnPg==" alt="Admin" />
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <nav class="admin-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Main</div>
+        <ul class="sidebar-menu">
+          <li><a href="#" class="active" onclick="showSection('dashboard')"><span class="icon">📊</span> Dashboard</a></li>
+          <li><a href="#" onclick="showSection('voters')"><span class="icon">👥</span> Voters</a></li>
+          <li><a href="#" onclick="showSection('candidates')"><span class="icon">🏛️</span> Candidates</a></li>
+          <li><a href="#" onclick="showSection('elections')"><span class="icon">🗳️</span> Elections</a></li>
+          <li><a href="#" onclick="showSection('polling-stations')"><span class="icon">🏢</span> Polling Stations</a></li>
+        </ul>
+      </div>
+      
+      <div class="sidebar-section">
+        <div class="sidebar-title">Management</div>
+        <ul class="sidebar-menu">
+          <li><a href="#" onclick="showSection('reports')"><span class="icon">📈</span> Reports</a></li>
+          <li><a href="#" onclick="showSection('settings')"><span class="icon">⚙️</span> Settings</a></li>
+          <li><a href="#" onclick="showSection('database')"><span class="icon">🗄️</span> Database</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Dashboard Section -->
+      <div id="dashboard-section" class="content-section">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Overview of your voting system</p>
+
+        <!-- Statistics Cards -->
+        <div class="dashboard-grid">
+          <div class="dashboard-card voters">
+            <div class="card-header">
+              <div class="card-title">Total Voters</div>
+              <div class="card-icon">👥</div>
+            </div>
+            <div class="card-value" id="total-voters">Loading...</div>
+            <div class="card-change positive" id="voters-change">+12 this week</div>
+          </div>
+
+          <div class="dashboard-card candidates">
+            <div class="card-header">
+              <div class="card-title">Total Candidates</div>
+              <div class="card-icon">🏛️</div>
+            </div>
+            <div class="card-value" id="total-candidates">Loading...</div>
+            <div class="card-change" id="candidates-change">Pending approval</div>
+          </div>
+
+          <div class="dashboard-card elections">
+            <div class="card-header">
+              <div class="card-title">Active Elections</div>
+              <div class="card-icon">🗳️</div>
+            </div>
+            <div class="card-value" id="total-elections">Loading...</div>
+            <div class="card-change" id="elections-change">3 upcoming</div>
+          </div>
+
+          <div class="dashboard-card stations">
+            <div class="card-header">
+              <div class="card-title">Polling Stations</div>
+              <div class="card-icon">🏢</div>
+            </div>
+            <div class="card-value" id="total-stations">Loading...</div>
+            <div class="card-change positive" id="stations-change">All operational</div>
+          </div>
+
+          <div class="dashboard-card votes">
+            <div class="card-header">
+              <div class="card-title">Total Votes</div>
+              <div class="card-icon">📊</div>
+            </div>
+            <div class="card-value" id="total-votes">0</div>
+            <div class="card-change" id="votes-change">Elections pending</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voters Section -->
+      <div id="voters-section" class="content-section" style="display:none;">
+        <h1 class="page-title">Voter Management</h1>
+        <p class="page-subtitle">Manage registered voters and their information</p>
+
+        <div class="data-table-container">
+          <div class="table-header">
+            <div class="table-title">Registered Voters</div>
+            <div class="table-actions">
+              <button class="btn btn-secondary" onclick="exportVoters()">📥 Export</button>
+              <button class="btn btn-primary" onclick="addVoter()">➕ Add Voter</button>
+            </div>
+          </div>
+          <div id="voters-loading" class="loading">Loading voters...</div>
+          <table class="data-table" id="voters-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>Voter ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Location</th>
+                <th>Registration Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="voters-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Candidates Section -->
+      <div id="candidates-section" class="content-section" style="display:none;">
+        <h1 class="page-title">Candidate Management</h1>
+        <p class="page-subtitle">Manage registered candidates and their information</p>
+
+        <div class="data-table-container">
+          <div class="table-header">
+            <div class="table-title">Registered Candidates</div>
+            <div class="table-actions">
+              <button class="btn btn-secondary" onclick="loadCandidates()">🔄 Refresh</button>
+              <button class="btn btn-secondary" onclick="exportCandidates()">📥 Export</button>
+              <button class="btn btn-secondary" onclick="window.open('candidate-registration.html', '_blank')">➕ Register New Candidate</button>
+              <button class="btn btn-secondary" onclick="window.open('test-candidates.html', '_blank')">🧪 Test Tool</button>
+            </div>
+          </div>
+          <div id="candidates-loading" class="loading">Loading candidates...</div>
+          <table class="data-table" id="candidates-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>Candidate ID</th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Party</th>
+                <th>Constituency</th>
+                <th>Status</th>
+                <th>Registration Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="candidates-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Elections Section -->
+      <div id="elections-section" class="content-section" style="display:none;">
+        <h1 class="page-title">Election Management</h1>
+        <p class="page-subtitle">Create and manage elections</p>
+
+        <div class="data-table-container">
+          <div class="table-header">
+            <div class="table-title">Elections</div>
+            <div class="table-actions">
+              <button class="btn btn-primary" onclick="addElection()">➕ Create Election</button>
+            </div>
+          </div>
+          <div id="elections-loading" class="loading">Loading elections...</div>
+          <table class="data-table" id="elections-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Candidates</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="elections-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Database Section -->
+      <div id="database-section" class="content-section" style="display:none;">
+        <h1 class="page-title">Database Management</h1>
+        <p class="page-subtitle">Import data and manage database operations</p>
+
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div class="card-title">Quick Actions</div>
+              <div class="card-icon">⚡</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:15px;">
+              <button class="btn btn-primary" onclick="testConnection()">🔍 Test Connection</button>
+              <button class="btn btn-secondary" onclick="viewDatabaseStructure()">📋 View Structure</button>
+              <button class="btn btn-secondary" onclick="backupDatabase()">💾 Backup Database</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-table-container">
+          <div class="table-header">
+            <div class="table-title">Database Status</div>
+          </div>
+          <div id="database-output" style="padding:20px;font-family:monospace;background:#f8fafc;min-height:200px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Edit Item</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="edit-form">
+        <div id="form-fields"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, get, set, push, remove, child, onValue, off } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBUq8kXNMY29rfqEf0APbnyDMf-fWTc7SU",
+      authDomain: "fingerprint-voting-syste-d926c.firebaseapp.com",
+      databaseURL: "https://fingerprint-voting-syste-d926c-default-rtdb.firebaseio.com",
+      projectId: "fingerprint-voting-syste-d926c",
+      storageBucket: "fingerprint-voting-syste-d926c.firebasestorage.app",
+      messagingSenderId: "458706704567",
+      appId: "1:458706704567:web:e1595ac2701de926219532",
+      measurementId: "G-4SEHLRDTCY"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Make available globally
+    window.database = database;
+    window.firebaseRefs = { ref, get, set, push, remove, child, onValue, off };
+    
+    // Setup real-time listeners
+    window.addEventListener('load', () => {
+      setupRealtimeListeners();
+      loadDashboardData();
+    });
+  </script>
+
+  <script>
+    let currentSection = 'dashboard';
+    let currentEditItem = null;
+
+    // Show section
+    function showSection(section) {
+      // Hide all sections
+      document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+      
+      // Show selected section
+      document.getElementById(section + '-section').style.display = 'block';
+      
+      // Update sidebar active state
+      document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      currentSection = section;
+      
+      // Load section data
+      if (section === 'voters') loadVoters();
+      else if (section === 'candidates') loadCandidates();
+      else if (section === 'elections') loadElections();
+    }
+
+    // Real-time listeners setup
+    function setupRealtimeListeners() {
+      // Dashboard real-time listeners
+      const dbRef = window.firebaseRefs.ref(window.database);
+      window.firebaseRefs.onValue(dbRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          updateDashboardStats(data);
+        }
+      });
+
+      // Auto-refresh current section data
+      const votersRef = window.firebaseRefs.ref(window.database, 'voters');
+      window.firebaseRefs.onValue(votersRef, () => {
+        if (currentSection === 'voters') {
+          loadVoters();
+        }
+      });
+
+      const electionsRef = window.firebaseRefs.ref(window.database, 'elections');
+      window.firebaseRefs.onValue(electionsRef, () => {
+        if (currentSection === 'elections') {
+          loadElections();
+        }
+      });
+
+      const candidatesRef = window.firebaseRefs.ref(window.database, 'candidates');
+      window.firebaseRefs.onValue(candidatesRef, () => {
+        if (currentSection === 'candidates') {
+          loadCandidates();
+        }
+      });
+    }
+
+    function updateDashboardStats(data) {
+      // Update statistics with real-time data
+      document.getElementById('total-voters').textContent = 
+        data.voters ? Object.keys(data.voters).length : 0;
+      document.getElementById('total-candidates').textContent = 
+        data.candidates ? Object.keys(data.candidates).length : 0;
+      document.getElementById('total-elections').textContent = 
+        data.elections ? Object.keys(data.elections).length : 0;
+      document.getElementById('total-stations').textContent = 
+        data.polling_stations ? Object.keys(data.polling_stations).length : 0;
+      document.getElementById('total-votes').textContent = 
+        data.votes ? Object.keys(data.votes).length - 1 : 0; // -1 for placeholder
+      
+      // Show last update time
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      
+      // Add or update last update indicator
+      let updateIndicator = document.getElementById('last-update');
+      if (!updateIndicator) {
+        updateIndicator = document.createElement('div');
+        updateIndicator.id = 'last-update';
+        updateIndicator.style.cssText = 'position:fixed;top:10px;right:10px;background:#10b981;color:white;padding:5px 10px;border-radius:15px;font-size:12px;z-index:1000;';
+        document.body.appendChild(updateIndicator);
+      }
+      updateIndicator.textContent = `Updated: ${timeStr}`;
+      
+      // Fade out the indicator after 2 seconds
+      setTimeout(() => {
+        updateIndicator.style.opacity = '0.5';
+      }, 2000);
+      setTimeout(() => {
+        updateIndicator.style.opacity = '1';
+      }, 4000);
+    }
+
+    // Dashboard functions
+    async function loadDashboardData() {
+      // Initial load - real-time updates will be handled by setupRealtimeListeners
+      try {
+        const dbRef = window.firebaseRefs.ref(window.database);
+        const snapshot = await window.firebaseRefs.get(dbRef);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          updateDashboardStats(data);
+        }
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    }
+
+    // Voters functions
+    async function loadVoters() {
+      const loading = document.getElementById('voters-loading');
+      const table = document.getElementById('voters-table');
+      const tbody = document.getElementById('voters-tbody');
+      
+      loading.style.display = 'block';
+      table.style.display = 'none';
+      
+      try {
+        const votersRef = window.firebaseRefs.ref(window.database, 'voters');
+        const snapshot = await window.firebaseRefs.get(votersRef);
+        
+        tbody.innerHTML = '';
+        
+        if (snapshot.exists()) {
+          const voters = snapshot.val();
+          
+          Object.entries(voters).forEach(([id, voter]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${voter.voterId}</td>
+              <td>${voter.firstName} ${voter.lastName}</td>
+              <td>${voter.age}</td>
+              <td>${voter.city}, ${voter.state}</td>
+              <td>${new Date(voter.registrationDate).toLocaleDateString()}</td>
+              <td><span class="status-badge status-${voter.status.toLowerCase()}">${voter.status}</span></td>
+              <td>
+                <button class="action-btn edit" onclick="editVoter('${id}')" title="Edit">✏️</button>
+                <button class="action-btn delete" onclick="deleteVoter('${id}')" title="Delete">🗑️</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+        
+        loading.style.display = 'none';
+        table.style.display = 'table';
+      } catch (error) {
+        console.error('Error loading voters:', error);
+        loading.innerHTML = '<div style="color:red;">Error loading voters</div>';
+      }
+    }
+
+    // Candidates functions
+    async function loadCandidates() {
+      const loading = document.getElementById('candidates-loading');
+      const table = document.getElementById('candidates-table');
+      const tbody = document.getElementById('candidates-tbody');
+      
+      console.log('🔍 Loading candidates...');
+      loading.style.display = 'block';
+      table.style.display = 'none';
+      
+      try {
+        const candidatesRef = window.firebaseRefs.ref(window.database, 'candidates');
+        const snapshot = await window.firebaseRefs.get(candidatesRef);
+        
+        console.log('📊 Candidates snapshot exists:', snapshot.exists());
+        
+        tbody.innerHTML = '';
+        
+        if (snapshot.exists()) {
+          const candidates = snapshot.val();
+          const candidateCount = Object.keys(candidates).length;
+          console.log(`📋 Found ${candidateCount} candidates:`, candidates);
+          
+          Object.entries(candidates).forEach(([id, candidate]) => {
+            console.log(`➕ Adding candidate: ${candidate.firstName} ${candidate.lastName}`);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${candidate.candidateId}</td>
+              <td>
+                ${candidate.photoBase64 ? 
+                  `<img src="${candidate.photoBase64}" alt="${candidate.firstName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` : 
+                  '<div style="width: 40px; height: 40px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 18px;">👤</div>'
+                }
+              </td>
+              <td>${candidate.firstName} ${candidate.lastName}</td>
+              <td>${candidate.politicalParty}</td>
+              <td>${candidate.constituency}</td>
+              <td><span class="status-badge status-${candidate.status.toLowerCase()}">${candidate.status}</span></td>
+              <td>${new Date(candidate.registrationDate).toLocaleDateString()}</td>
+              <td>
+                <button class="action-btn edit" onclick="editCandidate('${id}')" title="Edit">✏️</button>
+                <button class="action-btn ${candidate.status === 'Approved' ? 'reject' : 'approve'}" onclick="toggleCandidateStatus('${id}')" title="${candidate.status === 'Approved' ? 'Reject' : 'Approve'}">${candidate.status === 'Approved' ? '❌' : '✅'}</button>
+                <button class="action-btn delete" onclick="deleteCandidate('${id}')" title="Delete">🗑️</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          console.log('📭 No candidates found in database');
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px; color: #374151;">No candidates found. <a href="candidate-registration.html" target="_blank">Register first candidate</a></td></tr>';
+        }
+        
+        loading.style.display = 'none';
+        table.style.display = 'table';
+        console.log('✅ Candidates loaded successfully');
+      } catch (error) {
+        console.error('❌ Error loading candidates:', error);
+        loading.innerHTML = '<div style="color:red;">Error loading candidates: ' + error.message + '</div>';
+      }
+    }
+
+    // Candidate management functions
+    async function editCandidate(id) {
+      try {
+        const candidateRef = window.firebaseRefs.ref(window.database, `candidates/${id}`);
+        const snapshot = await window.firebaseRefs.get(candidateRef);
+        
+        if (snapshot.exists()) {
+          const candidate = snapshot.val();
+          currentEditItem = {type: 'candidate', id, data: candidate};
+          
+          document.getElementById('modal-title').textContent = 'Edit Candidate';
+          document.getElementById('form-fields').innerHTML = `
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" name="firstName" value="${candidate.firstName}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" name="lastName" value="${candidate.lastName}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" name="email" value="${candidate.email}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-input" name="phone" value="${candidate.phone}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Political Party</label>
+              <select class="form-input" name="politicalParty" required>
+                <option value="BJP" ${candidate.politicalParty === 'BJP' ? 'selected' : ''}>BJP</option>
+                <option value="INC" ${candidate.politicalParty === 'INC' ? 'selected' : ''}>INC</option>
+                <option value="AAP" ${candidate.politicalParty === 'AAP' ? 'selected' : ''}>AAP</option>
+                <option value="Independent" ${candidate.politicalParty === 'Independent' ? 'selected' : ''}>Independent</option>
+                <option value="Other" ${candidate.politicalParty === 'Other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Constituency</label>
+              <input type="text" class="form-input" name="constituency" value="${candidate.constituency}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Symbol</label>
+              <input type="text" class="form-input" name="symbol" value="${candidate.symbol}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-input" name="status" required>
+                <option value="Pending" ${candidate.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Approved" ${candidate.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                <option value="Rejected" ${candidate.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+              </select>
+            </div>
+          `;
+          
+          showModal();
+        }
+      } catch (error) {
+        console.error('Error loading candidate:', error);
+        alert('Error loading candidate data');
+      }
+    }
+
+    async function toggleCandidateStatus(id) {
+      try {
+        const candidateRef = window.firebaseRefs.ref(window.database, `candidates/${id}`);
+        const snapshot = await window.firebaseRefs.get(candidateRef);
+        
+        if (snapshot.exists()) {
+          const candidate = snapshot.val();
+          const newStatus = candidate.status === 'Approved' ? 'Rejected' : 'Approved';
+          
+          if (confirm(`Are you sure you want to ${newStatus.toLowerCase()} this candidate?`)) {
+            await window.firebaseRefs.set(candidateRef, {...candidate, status: newStatus, verified: newStatus === 'Approved'});
+            loadCandidates(); // Reload table
+            loadDashboardData(); // Update counts
+          }
+        }
+      } catch (error) {
+        console.error('Error updating candidate status:', error);
+        alert('Error updating candidate status');
+      }
+    }
+
+    async function deleteCandidate(id) {
+      if (confirm('Are you sure you want to delete this candidate?')) {
+        try {
+          const candidateRef = window.firebaseRefs.ref(window.database, `candidates/${id}`);
+          await window.firebaseRefs.remove(candidateRef);
+          loadCandidates(); // Reload table
+          loadDashboardData(); // Update counts
+        } catch (error) {
+          console.error('Error deleting candidate:', error);
+          alert('Error deleting candidate');
+        }
+      }
+    }
+
+    // Elections functions  
+    async function loadElections() {
+      const loading = document.getElementById('elections-loading');
+      const table = document.getElementById('elections-table');
+      const tbody = document.getElementById('elections-tbody');
+      
+      loading.style.display = 'block';
+      table.style.display = 'none';
+      
+      try {
+        const electionsRef = window.firebaseRefs.ref(window.database, 'elections');
+        const snapshot = await window.firebaseRefs.get(electionsRef);
+        
+        tbody.innerHTML = '';
+        
+        if (snapshot.exists()) {
+          const elections = snapshot.val();
+          
+          Object.entries(elections).forEach(([id, election]) => {
+            const candidateCount = election.candidates ? Object.keys(election.candidates).length : 0;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${election.title}</td>
+              <td>${election.type}</td>
+              <td>${new Date(election.startDate).toLocaleDateString()}</td>
+              <td><span class="status-badge status-${election.status}">${election.status}</span></td>
+              <td>${candidateCount} candidates</td>
+              <td>
+                <button class="action-btn edit" onclick="editElection('${id}')" title="Edit">✏️</button>
+                <button class="action-btn delete" onclick="deleteElection('${id}')" title="Delete">🗑️</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+        
+        loading.style.display = 'none';
+        table.style.display = 'table';
+      } catch (error) {
+        console.error('Error loading elections:', error);
+        loading.innerHTML = '<div style="color:red;">Error loading elections</div>';
+      }
+    }
+
+    // Modal functions
+    function showModal() {
+      document.getElementById('edit-modal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('edit-modal').classList.remove('show');
+      currentEditItem = null;
+    }
+
+    // Edit functions
+    async function editVoter(id) {
+      try {
+        const voterRef = window.firebaseRefs.ref(window.database, `voters/${id}`);
+        const snapshot = await window.firebaseRefs.get(voterRef);
+        
+        if (snapshot.exists()) {
+          const voter = snapshot.val();
+          currentEditItem = {type: 'voter', id, data: voter};
+          
+          document.getElementById('modal-title').textContent = 'Edit Voter';
+          document.getElementById('form-fields').innerHTML = `
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" name="firstName" value="${voter.firstName}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" name="lastName" value="${voter.lastName}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" name="email" value="${voter.email || ''}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" name="status">
+                <option value="Active" ${voter.status === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Inactive" ${voter.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+              </select>
+            </div>
+          `;
+          
+          showModal();
+        }
+      } catch (error) {
+        console.error('Error loading voter:', error);
+        alert('Error loading voter data');
+      }
+    }
+
+    async function editElection(id) {
+      try {
+        const electionRef = window.firebaseRefs.ref(window.database, `elections/${id}`);
+        const snapshot = await window.firebaseRefs.get(electionRef);
+        
+        if (snapshot.exists()) {
+          const election = snapshot.val();
+          currentEditItem = {type: 'election', id, data: election};
+          
+          document.getElementById('modal-title').textContent = 'Edit Election';
+          document.getElementById('form-fields').innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-input" name="title" value="${election.title}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" name="description" required>${election.description}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" name="status">
+                <option value="upcoming" ${election.status === 'upcoming' ? 'selected' : ''}>Upcoming</option>
+                <option value="ongoing" ${election.status === 'ongoing' ? 'selected' : ''}>Ongoing</option>
+                <option value="completed" ${election.status === 'completed' ? 'selected' : ''}>Completed</option>
+              </select>
+            </div>
+          `;
+          
+          showModal();
+        }
+      } catch (error) {
+        console.error('Error loading election:', error);
+        alert('Error loading election data');
+      }
+    }
+
+    // Delete functions
+    async function deleteVoter(id) {
+      if (confirm('Are you sure you want to delete this voter?')) {
+        try {
+          const voterRef = window.firebaseRefs.ref(window.database, `voters/${id}`);
+          await window.firebaseRefs.remove(voterRef);
+          loadVoters(); // Reload table
+          loadDashboardData(); // Update counts
+        } catch (error) {
+          console.error('Error deleting voter:', error);
+          alert('Error deleting voter');
+        }
+      }
+    }
+
+    async function deleteElection(id) {
+      if (confirm('Are you sure you want to delete this election?')) {
+        try {
+          const electionRef = window.firebaseRefs.ref(window.database, `elections/${id}`);
+          await window.firebaseRefs.remove(electionRef);
+          loadElections(); // Reload table
+          loadDashboardData(); // Update counts
+        } catch (error) {
+          console.error('Error deleting election:', error);
+          alert('Error deleting election');
+        }
+      }
+    }
+
+    // Form submission
+    document.getElementById('edit-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!currentEditItem) return;
+      
+      const formData = new FormData(this);
+      const updates = {};
+      
+      for (let [key, value] of formData.entries()) {
+        updates[key] = value;
+      }
+      
+      try {
+        if (currentEditItem.type === 'voter') {
+          const voterRef = window.firebaseRefs.ref(window.database, `voters/${currentEditItem.id}`);
+          await window.firebaseRefs.set(voterRef, {...currentEditItem.data, ...updates});
+          loadVoters();
+        } else if (currentEditItem.type === 'candidate') {
+          const candidateRef = window.firebaseRefs.ref(window.database, `candidates/${currentEditItem.id}`);
+          await window.firebaseRefs.set(candidateRef, {...currentEditItem.data, ...updates});
+          loadCandidates();
+        } else if (currentEditItem.type === 'election') {
+          const electionRef = window.firebaseRefs.ref(window.database, `elections/${currentEditItem.id}`);
+          await window.firebaseRefs.set(electionRef, {...currentEditItem.data, ...updates});
+          loadElections();
+        }
+        
+        closeModal();
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error saving changes:', error);
+        alert('Error saving changes');
+      }
+    });
+
+    // Database functions
+    async function testConnection() {
+      const output = document.getElementById('database-output');
+      output.innerHTML = 'Testing connection...\n';
+      
+      try {
+        const dbRef = window.firebaseRefs.ref(window.database);
+        const snapshot = await window.firebaseRefs.get(dbRef);
+        
+        output.innerHTML += '✅ Connection successful!\n';
+        output.innerHTML += `📡 Connected to: ${window.database.app.options.databaseURL}\n`;
+        output.innerHTML += `📊 Database contains: ${snapshot.exists() ? Object.keys(snapshot.val()).length : 0} top-level collections\n`;
+      } catch (error) {
+        output.innerHTML += `❌ Connection failed: ${error.message}\n`;
+      }
+    }
+
+    async function viewDatabaseStructure() {
+      const output = document.getElementById('database-output');
+      output.innerHTML = 'Loading database structure...\n';
+      
+      try {
+        const dbRef = window.firebaseRefs.ref(window.database);
+        const snapshot = await window.firebaseRefs.get(dbRef);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          output.innerHTML = '📊 Database Structure:\n\n';
+          
+          Object.keys(data).forEach(key => {
+            const count = data[key] && typeof data[key] === 'object' ? Object.keys(data[key]).length : 1;
+            output.innerHTML += `├── ${key}: ${count} items\n`;
+          });
+        } else {
+          output.innerHTML = '📭 Database is empty\n';
+        }
+      } catch (error) {
+        output.innerHTML += `❌ Error: ${error.message}\n`;
+      }
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        window.location.href = 'main.html';
+      }
+    }
+
+    // Utility functions
+    function addVoter() {
+      alert('Add voter functionality - would open a form to create new voter');
+    }
+
+    function addElection() {
+      alert('Add election functionality - would open a form to create new election');
+    }
+
+    function exportVoters() {
+      alert('Export voters functionality - would download CSV/Excel file');
+    }
+
+    function exportCandidates() {
+      alert('Export candidates functionality - would download CSV/Excel file with candidate details');
+    }
+
+    function backupDatabase() {
+      alert('Backup database functionality - would create database backup');
+    }
+
+    // Debug and refresh functions
+    let debugMode = false;
+    
+    function debugLog(message) {
+      if (debugMode) {
+        const debugOutput = document.getElementById('debug-output');
+        const timestamp = new Date().toLocaleTimeString();
+        debugOutput.innerHTML += `[${timestamp}] ${message}\n`;
+        debugOutput.scrollTop = debugOutput.scrollHeight;
+      }
+      console.log(message);
+    }
+
+    function toggleDebug() {
+      debugMode = !debugMode;
+      const debugConsole = document.getElementById('debug-console');
+      debugConsole.style.display = debugMode ? 'block' : 'none';
+      
+      if (debugMode) {
+        debugLog('🔍 Debug mode enabled');
+        debugLog('Firebase database URL: ' + window.database.app.options.databaseURL);
+      }
+    }
+
+    async function testConnection() {
+      debugLog('🔗 Testing Firebase connection...');
+      try {
+        const testRef = window.firebaseRefs.ref(window.database, '.info/connected');
+        const snapshot = await window.firebaseRefs.get(testRef);
+        
+        if (snapshot.exists() && snapshot.val() === true) {
+          debugLog('✅ Firebase connection successful');
+          alert('✅ Firebase connection is working!');
+        } else {
+          debugLog('❌ Firebase connection failed');
+          alert('❌ Firebase connection failed');
+        }
+      } catch (error) {
+        debugLog('❌ Connection error: ' + error.message);
+        alert('❌ Connection error: ' + error.message);
+      }
+    }
+
+    async function forceRefresh() {
+      debugLog('🔄 Force refreshing all data...');
+      
+      try {
+        // Clear any cached data
+        const dbRef = window.firebaseRefs.ref(window.database);
+        
+        // Force reload dashboard data
+        await loadDashboardData();
+        debugLog('✅ Dashboard data refreshed');
+        
+        // Refresh current section
+        if (currentSection === 'voters') {
+          await loadVoters();
+          debugLog('✅ Voters data refreshed');
+        } else if (currentSection === 'elections') {
+          await loadElections();
+          debugLog('✅ Elections data refreshed');
+        }
+        
+        // Show success indicator
+        const indicator = document.getElementById('last-update') || document.createElement('div');
+        indicator.id = 'last-update';
+        indicator.style.cssText = 'position:fixed;top:10px;right:10px;background:#10b981;color:white;padding:8px 15px;border-radius:20px;font-size:14px;z-index:1000;font-weight:bold;';
+        indicator.textContent = '✅ Data Refreshed!';
+        document.body.appendChild(indicator);
+        
+        setTimeout(() => {
+          indicator.style.background = '#6b7280';
+          indicator.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+        }, 3000);
+        
+        debugLog('🎉 Force refresh completed');
+        
+      } catch (error) {
+        debugLog('❌ Force refresh error: ' + error.message);
+        alert('Error refreshing data: ' + error.message);
+      }
+    }
+
+    function clearCache() {
+      debugLog('🧹 Clearing browser cache...');
+      
+      // Clear localStorage
+      localStorage.clear();
+      debugLog('✅ LocalStorage cleared');
+      
+      // Clear sessionStorage
+      sessionStorage.clear();
+      debugLog('✅ SessionStorage cleared');
+      
+      // Force page reload to clear any in-memory cache
+      if (confirm('Cache cleared! Reload page to apply changes?')) {
+        location.reload(true);
+      }
+    }
+
+    // Enhanced error handling for Firebase operations
+    const originalConsoleError = console.error;
+    console.error = function(...args) {
+      debugLog('❌ Error: ' + args.join(' '));
+      originalConsoleError.apply(console, args);
+    };
+
+    // Monitor Firebase connection status
+    function monitorConnection() {
+      const connectedRef = window.firebaseRefs.ref(window.database, '.info/connected');
+      window.firebaseRefs.onValue(connectedRef, (snapshot) => {
+        const connected = snapshot.val();
+        debugLog(connected ? '🟢 Firebase connected' : '🔴 Firebase disconnected');
+        
+        // Update connection indicator
+        let connectionIndicator = document.getElementById('connection-status');
+        if (!connectionIndicator) {
+          connectionIndicator = document.createElement('div');
+          connectionIndicator.id = 'connection-status';
+          connectionIndicator.style.cssText = 'position:fixed;top:50px;right:10px;padding:5px 10px;border-radius:15px;font-size:12px;z-index:999;';
+          document.body.appendChild(connectionIndicator);
+        }
+        
+        if (connected) {
+          connectionIndicator.style.background = '#10b981';
+          connectionIndicator.style.color = 'white';
+          connectionIndicator.textContent = '🟢 Connected';
+        } else {
+          connectionIndicator.style.background = '#ef4444';
+          connectionIndicator.style.color = 'white';
+          connectionIndicator.textContent = '🔴 Offline';
+        }
+      });
+    }
+
+    // Initialize connection monitoring when page loads
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        monitorConnection();
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>

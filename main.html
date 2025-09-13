@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Election Management System</title>
+<style>
+  :root{
+    --navy:#101a3a;      /* deep header/nav color */
+    --navy-2:#182447;    /* secondary navy */
+    --red:#e23b3b;       /* accent red */
+    --grey:#6b7280;
+    --light:#f8fafc;
+    --card:#ffffff;
+    --shadow:0 10px 24px rgba(0,0,0,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color:#111827;background:var(--light);line-height:1.55;
+  }
+
+  /* Topbar */
+  .topbar{
+    background:var(--navy);
+    color:#e5e7eb;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 28px;font-size:14px
+  }
+  .topbar span{margin-right:18px}
+
+  /* Header */
+  .header{
+    background:#fff;border-bottom:1px solid #e5e7eb;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .logo{font-size:32px;color:var(--navy)}
+  .brand .title{font-size:22px;font-weight:800;color:var(--navy)}
+  .brand .sub{font-size:12px;color:var(--grey)}
+  .cta{
+    display:flex;gap:10px;align-items:center
+  }
+  .btn{
+    border:none;border-radius:28px;padding:10px 18px;font-weight:700;
+    cursor:pointer;transition:transform .15s ease, filter .2s ease
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{filter:brightness(.94)}
+  .btn-ghost{background:#eef2ff;color:var(--navy);border-radius:10px}
+
+  /* MODULES NAV (highlighted, bordered) */
+  .modules{
+    position:sticky;top:0;z-index:4000;  /* above slider */
+    background:linear-gradient(0deg, var(--navy-2), var(--navy));
+    border-top:4px solid var(--red);
+    border-bottom:4px solid var(--red);
+    box-shadow:var(--shadow)
+  }
+  .modules ul{list-style:none;display:flex;justify-content:center;flex-wrap:wrap}
+  .modules > ul > li{position:relative;margin:0 2px}
+  .modules a{
+    color:#fff;text-decoration:none;font-weight:600;letter-spacing:.2px;
+    display:block;padding:14px 18px;border-radius:8px;transition:background .25s ease
+  }
+  .modules > ul > li > a:hover{background:rgba(255,255,255,.08)}
+  .modules > ul > li > a::after{
+    content:'';display:block;height:3px;border-radius:2px;background:transparent;margin-top:8px
+  }
+  .modules > ul > li:hover > a::after{background:linear-gradient(90deg,#fff,var(--red))}
+  /* Dropdowns */
+  .dropdown{
+    position:absolute;left:0;top:100%;min-width:230px;background:#ffffff;
+    border-radius:10px;box-shadow:var(--shadow);
+    padding:8px;margin-top:8px;opacity:0;visibility:hidden;transform:translateY(8px);
+    transition:all .2s ease;z-index:5000  /* higher than everything */
+  }
+  .modules li:hover > .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+  .dropdown a{
+    color:#1f2937;padding:10px 12px;border-radius:8px;font-weight:600
+  }
+  .dropdown a:hover{background:#f3f4f6;color:var(--navy)}
+  .dropdown .label{font-size:11px;color:#6b7280;padding:6px 12px 4px}
+
+  /* HERO / SLIDER */
+  .hero-wrap{position:relative;padding:28px}
+  .slider{
+    position:relative;height:480px;border-radius:16px;overflow:hidden;background:#000;
+    box-shadow:var(--shadow);border:6px solid #ffffff
+  }
+  .slide{position:absolute;inset:0;opacity:0;transition:opacity 800ms ease}
+  .slide.active{opacity:1}
+  .slide img{
+    width:100%;height:100%;object-fit:cover;
+    filter:contrast(1.05) saturate(1.05);  /* CRISP & CLEAR */
+    transform:scale(1.01)
+  }
+  /* subtle bottom gradient ONLY (keep image bright) */
+  .slide::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;top:40%;
+    background:linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,0));
+    pointer-events:none
+  }
+
+  /* Quote ribbons (like reference) */
+  .ribbons{
+    position:absolute;left:8%;top:18%;display:flex;flex-direction:column;gap:14px;z-index:2;max-width:620px
+  }
+  .ribbon{
+    display:inline-block;color:#fff;font-weight:800;font-size:18px;line-height:1.25;
+    padding:10px 14px;border-radius:6px;box-shadow:0 8px 18px rgba(0,0,0,.18)
+  }
+  .ribbon.red{background:var(--red)}
+  .ribbon.dark{background:rgba(16,26,58,.92)}
+  .badge{
+    position:absolute;right:4%;top:16%;z-index:2;
+    background:#fff;border-radius:50%;width:120px;height:120px;display:grid;place-items:center;
+    box-shadow:var(--shadow);font-weight:900;color:var(--navy)
+  }
+  .badge span{display:block;font-size:18px}
+  .hero-cta{
+    position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;
+    display:flex;gap:12px;flex-wrap:wrap;justify-content:center
+  }
+  .btn-outline{
+    background:transparent;border:2px solid #fff;color:#fff;border-radius:30px;
+    padding:10px 18px;font-weight:800
+  }
+  .btn-outline:hover{background:#fff;color:var(--navy)}
+  /* Dots */
+  .dots{
+    position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+    display:flex;gap:8px;z-index:3
+  }
+  .dot{
+    width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.55);
+    cursor:pointer;transition:transform .2s ease, background .2s ease
+  }
+  .dot.active{background:#fff;transform:scale(1.2)}
+
+  /* Content demo below hero */
+  .section{padding:34px 28px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:18px}
+  .card h3{color:var(--navy);margin-bottom:8px}
+</style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <span>📧 contact@onlinevote.gov</span>
+      <span>📞 1800 VOTE NOW</span>
+      <span>🌐 Private Voting System</span>
+    </div>
+    <div>⏰ Last Updated: Aug 19, 2025 · 09:30 AM</div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="logo">🗳️</div>
+      <div>
+        <div class="title">Online Voting System</div>
+        <div class="sub">Private Election Voting System</div>
+      </div>
+    </div>
+    <div class="cta">
+      <button class="btn btn-ghost" onclick="window.location.href='login.html'">🔐 Login</button>
+      <button class="btn btn-ghost">⚙️ Settings</button>
+    </div>
+  </header>
+
+  <!-- MODULES BAR (with dropdowns) -->
+  <nav class="modules">
+    <ul>
+      <li>
+        <a href="#">Dashboard</a>
+        <div class="dropdown">
+          <div class="label">Quick Access</div>
+          <a href="#">Analytics</a>
+          <a href="#">Alerts</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Candidates</a>
+        <div class="dropdown">
+          <a href="#">Candidate List</a>
+          <a href="candidate-registration.html">Register Candidate</a>
+          
+        </div>
+      </li>
+      <li>
+        <a href="#">Polling Stations</a>
+        <div class="dropdown">
+          <a href="#">Station Directory</a>
+          <a href="#">Assign Officers</a>
+          <a href="#">Logistics & Supplies</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Results</a>
+        <div class="dropdown">
+          <a href="results.html">Live Results</a>
+          <a href="#">Constituency Tally</a>
+          <a href="#">Historical Results</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Voter Enrollment</a>
+        <div class="dropdown">
+          
+          <a href="newenroll.html">New Enrollment</a>
+	  <a href="checkenroll.html">Check Enrollment</a>
+          <a href="#">Update Enrollment</a>
+        </div>
+      </li>
+      <li>
+        <a href="#">Schedule</a>
+        <div class="dropdown">
+          <a href="upcoming.html">Upcoming Elections</a>
+          <a href="ongoing.html">Ongoing Elections</a>
+          
+        </div>
+      </li>
+      <li>
+        <a href="#">Help Desk</a>
+        <div class="dropdown">
+          <a href="contacts.html">Contact Us</a>
+          <a href="faq.html"><span>FAQs</span></a>
+          
+        </div>
+      </li>
+      <li>
+        <a href="#">Admin</a>
+        <div class="dropdown">
+          <a href="#">User Management</a>
+          <a href="#">Set Election</a>
+          <a href="#">Voting Panel</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- HERO / SLIDER -->
+  <section class="hero-wrap">
+    <div class="slider" id="slider">
+      <!-- Slide 1 -->
+      <div class="slide active">
+        <img src="https://caltechsites-prod.s3.amazonaws.com/scienceexchange/images/Vote_redblue2_LoRes_sttntNm.2e16d0ba.fill-1600x500-c100.jpg" alt="City backdrop">
+        <div class="ribbons">
+          <div class="ribbon red">A single man is minority,</div>
+          <div class="ribbon dark">a leader is the majority.</div>
+          <div class="ribbon red">A man without a vote is</div>
+          <div class="ribbon dark">a man without protection.</div>
+        </div>
+        <div class="badge"><span>VOTE</span></div>
+        <div class="hero-cta">
+          <button class="btn btn-red" onclick="window.location.href='newenroll.html'">Register Now</button>
+          <button class="btn btn-outline" onclick="window.location.href='results.html'">View Results</button>
+        </div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="slide">
+        <img src="https://vaquill.com/img/blog/issues-in-the-voting-system-cover.webp" alt="Voting booth">
+        <div class="ribbons">
+          <div class="ribbon dark">Transparent Elections</div>
+          <div class="ribbon red">Driven by People Who Show Up</div>
+        </div>
+        <div class="hero-cta">
+          <button class="btn btn-red">Find Your Station</button>
+          <button class="btn btn-outline">Check Status</button>
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="slide">
+        <img src="https://prod-iifl-assets.storage.googleapis.com/2024/10/IIFL-B2C-Set-3-KYC-Banners-61-768x396.png.webp" alt="Crowd">
+        <div class="ribbons">
+          <div class="ribbon red">Secure • Transparent • Reliable</div>
+          <div class="ribbon dark">Fingerprint Authentication Ensures Integrity</div>
+        </div>
+        <div class="hero-cta">
+          <button class="btn btn-red" onclick="window.location.href='results.html'">View Live Results</button>
+          <button class="btn btn-outline">Explore Reports</button>
+        </div>
+      </div>
+
+      <!-- dots -->
+      <div class="dots" id="dots"></div>
+    </div>
+  </section>
+
+  <!-- SAMPLE CONTENT -->
+  <section class="section">
+    <div class="cards">
+      <div class="card"><h3>Environment</h3><p>Protect our planet with sustainable policies for future generations.</p></div>
+      <div class="card"><h3>Population</h3><p>Ensure fair representation and equal access to voter services.</p></div>
+      <div class="card"><h3>Consumption</h3><p>Balance growth with responsible resource management.</p></div>
+    </div>
+  </section>
+
+<script>
+  // Slider logic with dots & click
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0 ? ' active':'');
+    d.addEventListener('click', () => go(i));
+    dotsWrap.appendChild(d);
+  });
+
+  const dots = Array.from(document.querySelectorAll('.dot'));
+  let idx = 0, interval = 6000, timer;
+
+  function show(i){
+    slides.forEach((s, k)=> s.classList.toggle('active', k===i));
+    dots.forEach((d, k)=> d.classList.toggle('active', k===i));
+  }
+  function next(){ idx = (idx+1) % slides.length; show(idx); }
+  function go(i){ idx=i; show(idx); reset(); }
+  function reset(){ clearInterval(timer); timer = setInterval(next, interval); }
+
+  timer = setInterval(next, interval);
+</script>
+</body>
+</html>

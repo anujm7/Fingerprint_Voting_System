@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Test Candidate</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 40px auto; 
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Candidate Data Addition</h1>
+        <p>Use this page to add test candidate data directly to Firebase.</p>
+        
+        <button onclick="addTestCandidate()">➕ Add Test Candidate</button>
+        <button onclick="checkCandidates()">👀 Check Existing Candidates</button>
+        <button onclick="clearCandidates()">🗑️ Clear All Candidates</button>
+        
+        <div id="log" class="log">
+            Ready to add test data...\n
+        </div>
+    </div>
+
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, push, set, get, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUq8kXNMY29rfqEf0APbnyDMf-fWTc7SU",
+            authDomain: "fingerprint-voting-syste-d926c.firebaseapp.com",
+            databaseURL: "https://fingerprint-voting-syste-d926c-default-rtdb.firebaseio.com",
+            projectId: "fingerprint-voting-syste-d926c",
+            storageBucket: "fingerprint-voting-syste-d926c.firebasestorage.app",
+            messagingSenderId: "458706704567",
+            appId: "1:458706704567:web:e1595ac2701de926219532",
+            measurementId: "G-4SEHLRDTCY"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Make available globally
+        window.database = database;
+        window.firebaseRefs = { ref, push, set, get, remove };
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        window.addTestCandidate = async function() {
+            log('🚀 Adding test candidate...');
+            
+            try {
+                const testCandidate = {
+                    candidateId: "CAND" + Date.now(),
+                    firstName: "Test",
+                    lastName: "Candidate",
+                    dateOfBirth: "1985-01-01",
+                    age: 40,
+                    gender: "male",
+                    email: "test.candidate@email.com",
+                    phone: "9999999999",
+                    address: "123 Test Street",
+                    city: "Test City",
+                    state: "Test State",
+                    pinCode: "123456",
+                    constituency: "Test Constituency",
+                    politicalParty: "Independent",
+                    symbol: "Test Symbol",
+                    slogan: "Test for Success",
+                    manifesto: "This is a test candidate for checking the system functionality.",
+                    education: "Graduate",
+                    profession: "Tester",
+                    experience: "Testing various systems and applications.",
+                    photoBase64: null,
+                    registrationDate: new Date().toISOString(),
+                    status: "Approved",
+                    votes: 0,
+                    verified: true
+                };
+
+                const candidatesRef = ref(database, 'candidates');
+                const newCandidateRef = push(candidatesRef);
+                await set(newCandidateRef, testCandidate);
+                
+                log('✅ Test candidate added successfully!');
+                log(`📋 Candidate ID: ${testCandidate.candidateId}`);
+                
+            } catch (error) {
+                log(`❌ Error adding candidate: ${error.message}`);
+                console.error(error);
+            }
+        };
+
+        window.checkCandidates = async function() {
+            log('🔍 Checking existing candidates...');
+            
+            try {
+                const candidatesRef = ref(database, 'candidates');
+                const snapshot = await get(candidatesRef);
+                
+                if (snapshot.exists()) {
+                    const candidates = snapshot.val();
+                    const count = Object.keys(candidates).length;
+                    log(`📊 Found ${count} candidates in database:`);
+                    
+                    Object.entries(candidates).forEach(([key, candidate], index) => {
+                        log(`${index + 1}. ${candidate.firstName} ${candidate.lastName} (${candidate.candidateId}) - ${candidate.status}`);
+                    });
+                } else {
+                    log('📭 No candidates found in database');
+                }
+                
+            } catch (error) {
+                log(`❌ Error checking candidates: ${error.message}`);
+                console.error(error);
+            }
+        };
+
+        window.clearCandidates = async function() {
+            if (!confirm('Are you sure you want to delete ALL candidates?')) {
+                return;
+            }
+            
+            log('🗑️ Clearing all candidates...');
+            
+            try {
+                const candidatesRef = ref(database, 'candidates');
+                await remove(candidatesRef);
+                
+                log('✅ All candidates cleared successfully!');
+                
+            } catch (error) {
+                log(`❌ Error clearing candidates: ${error.message}`);
+                console.error(error);
+            }
+        };
+
+        // Initialize
+        window.addEventListener('load', () => {
+            log('🚀 Candidate test tool loaded');
+            log('Click "Check Existing Candidates" to see current data');
+        });
+    </script>
+</body>
+</html>

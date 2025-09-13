@@ -1,0 +1,449 @@
+{
+  "elections": {
+    "election_001": {
+      "title": "Presidential General Election",
+      "type": "presidential",
+      "startDate": "2025-11-03T07:00:00Z",
+      "endDate": "2025-11-03T20:00:00Z",
+      "status": "upcoming",
+      "description": "The presidential election is a nationwide vote held every four years to elect the President and Vice President of the country. This is a general election following the primaries.",
+      "registrationDeadline": "2025-10-15T23:59:59Z",
+      "votingHours": "7:00 AM - 8:00 PM",
+      "jurisdiction": "National",
+      "candidates": {
+        "candidate_001": {
+          "id": "candidate_001",
+          "name": "Jane Smith",
+          "party": "Democratic Party",
+          "votes": 0,
+          "biography": "Former Governor with 15 years of public service experience",
+          "platform": "Healthcare reform, climate action, economic equality"
+        },
+        "candidate_002": {
+          "id": "candidate_002", 
+          "name": "John Davis",
+          "party": "Republican Party",
+          "votes": 0,
+          "biography": "Business leader and former Senator",
+          "platform": "Economic growth, traditional values, strong defense"
+        },
+        "candidate_003": {
+          "id": "candidate_003",
+          "name": "Sarah Wilson", 
+          "party": "Independent",
+          "votes": 0,
+          "biography": "Former Mayor and community organizer",
+          "platform": "Government transparency, local empowerment, environmental protection"
+        }
+      },
+      "totalVotes": 0,
+      "createdAt": "2025-09-12T10:00:00Z"
+    },
+    "election_002": {
+      "title": "State Senate Special Election",
+      "type": "special",
+      "startDate": "2025-09-25T07:00:00Z", 
+      "endDate": "2025-09-25T19:00:00Z",
+      "status": "upcoming",
+      "description": "A special election to fill the vacant senate seat in District 12 following the resignation of Senator James Thompson. The elected candidate will serve the remainder of the term.",
+      "registrationDeadline": "2025-09-10T23:59:59Z",
+      "votingHours": "7:00 AM - 7:00 PM",
+      "jurisdiction": "State District 12",
+      "candidates": {
+        "candidate_004": {
+          "id": "candidate_004",
+          "name": "Maria Rodriguez",
+          "party": "Democratic Party", 
+          "votes": 0,
+          "biography": "State Representative for 8 years",
+          "platform": "Education funding, healthcare access, infrastructure"
+        },
+        "candidate_005": {
+          "id": "candidate_005",
+          "name": "Robert Chen",
+          "party": "Republican Party",
+          "votes": 0,
+          "biography": "Former District Attorney",
+          "platform": "Public safety, fiscal responsibility, business growth"
+        }
+      },
+      "totalVotes": 0,
+      "createdAt": "2025-08-15T09:30:00Z"
+    },
+    "election_003": {
+      "title": "City Council Election",
+      "type": "municipal",
+      "startDate": "2025-12-10T08:00:00Z",
+      "endDate": "2025-12-10T20:00:00Z", 
+      "status": "upcoming",
+      "description": "The municipal election to select city council members for all five districts. Council members serve four-year terms and are responsible for local governance.",
+      "registrationDeadline": "2025-11-20T23:59:59Z",
+      "votingHours": "8:00 AM - 8:00 PM",
+      "jurisdiction": "City Districts 1-5",
+      "candidates": {
+        "candidate_006": {
+          "id": "candidate_006",
+          "name": "Lisa Johnson",
+          "party": "Independent",
+          "votes": 0,
+          "biography": "Community leader and small business owner",
+          "platform": "Local development, community services, transparency"
+        },
+        "candidate_007": {
+          "id": "candidate_007",
+          "name": "Michael Brown",
+          "party": "Citizens Party",
+          "votes": 0,
+          "biography": "Former city planning committee member",
+          "platform": "Urban planning, green initiatives, affordable housing"
+        },
+        "candidate_008": {
+          "id": "candidate_008",
+          "name": "Jennifer Lee",
+          "party": "Progressive Alliance",
+          "votes": 0,
+          "biography": "Education advocate and parent",
+          "platform": "Education quality, youth programs, public safety"
+        }
+      },
+      "totalVotes": 0,
+      "createdAt": "2025-09-01T14:20:00Z"
+    }
+  },
+  "polling_stations": {
+    "station_001": {
+      "id": "station_001",
+      "name": "Central High School",
+      "address": "123 Main Street, Downtown", 
+      "city": "Anytown",
+      "state": "CA",
+      "zip": "90210",
+      "hours": "7:00 AM - 8:00 PM",
+      "capacity": 500,
+      "coordinates": {
+        "lat": 34.0522,
+        "lng": -118.2437
+      },
+      "status": "active",
+      "facilities": ["Wheelchair Accessible", "Parking Available", "Public Transit"],
+      "contact": {
+        "phone": "(555) 123-4567",
+        "email": "central.voting@elections.gov"
+      },
+      "createdAt": "2025-08-01T12:00:00Z"
+    },
+    "station_002": {
+      "id": "station_002", 
+      "name": "Community Center",
+      "address": "456 Oak Avenue, Midtown",
+      "city": "Anytown",
+      "state": "CA", 
+      "zip": "90211",
+      "hours": "7:00 AM - 8:00 PM",
+      "capacity": 300,
+      "coordinates": {
+        "lat": 34.0622,
+        "lng": -118.2537
+      },
+      "status": "active",
+      "facilities": ["Wheelchair Accessible", "Parking Available"],
+      "contact": {
+        "phone": "(555) 234-5678", 
+        "email": "community.voting@elections.gov"
+      },
+      "createdAt": "2025-08-01T12:00:00Z"
+    },
+    "station_003": {
+      "id": "station_003",
+      "name": "City Hall",
+      "address": "789 Government Plaza, Uptown",
+      "city": "Anytown",
+      "state": "CA",
+      "zip": "90212", 
+      "hours": "7:00 AM - 8:00 PM",
+      "capacity": 400,
+      "coordinates": {
+        "lat": 34.0722,
+        "lng": -118.2637
+      },
+      "status": "active",
+      "facilities": ["Wheelchair Accessible", "Parking Available", "Public Transit", "Drop-off Zone"],
+      "contact": {
+        "phone": "(555) 345-6789",
+        "email": "cityhall.voting@elections.gov"
+      },
+      "createdAt": "2025-08-01T12:00:00Z"
+    }
+  },
+  "voters": {
+    "voter_001": {
+      "id": "voter_001",
+      "voterId": "VOTE8472951",
+      "firstName": "John",
+      "lastName": "Doe",
+      "dob": "1990-05-15",
+      "age": 35,
+      "gender": "Male", 
+      "address": "123 Oak Street",
+      "city": "Anytown",
+      "state": "CA",
+      "zip": "90210",
+      "organization": "Tech Corp",
+      "idProofType": "driver",
+      "idNumber": "D123456789",
+      "registrationDate": "2025-08-15T10:30:00Z",
+      "status": "Active",
+      "assignedPollingStation": "station_001",
+      "votingHistory": {
+        "2024_presidential": "voted",
+        "2024_local": "voted"
+      }
+    },
+    "voter_002": {
+      "id": "voter_002",
+      "voterId": "VOTE8472952", 
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "dob": "1988-12-20",
+      "age": 36,
+      "gender": "Female",
+      "address": "456 Pine Avenue",
+      "city": "Anytown", 
+      "state": "CA",
+      "zip": "90211",
+      "organization": "Health Systems",
+      "idProofType": "state",
+      "idNumber": "S987654321",
+      "registrationDate": "2025-08-20T14:45:00Z",
+      "status": "Active",
+      "assignedPollingStation": "station_002",
+      "votingHistory": {
+        "2024_presidential": "voted",
+        "2024_local": "not_voted"
+      }
+    },
+    "voter_003": {
+      "id": "voter_003",
+      "voterId": "VOTE8472953",
+      "firstName": "Michael",
+      "lastName": "Johnson",
+      "dob": "1992-03-10",
+      "age": 33,
+      "gender": "Male",
+      "address": "789 Elm Drive",
+      "city": "Anytown",
+      "state": "CA", 
+      "zip": "90212",
+      "organization": "Education Department",
+      "idProofType": "passport",
+      "idNumber": "P123456789",
+      "registrationDate": "2025-09-01T09:15:00Z",
+      "status": "Active",
+      "assignedPollingStation": "station_003",
+      "votingHistory": {
+        "2024_presidential": "voted",
+        "2024_local": "voted"
+      }
+    }
+  },
+  "votes": {
+    "votes_placeholder": {
+      "note": "Votes will be stored here during elections",
+      "structure": {
+        "election_id": "election_001",
+        "voter_id": "voter_001", 
+        "candidate_id": "candidate_001",
+        "timestamp": "2025-11-03T10:30:00Z",
+        "polling_station": "station_001",
+        "encrypted": true
+      }
+    }
+  },
+  "system_settings": {
+    "election_commission": {
+      "name": "County Election Commission",
+      "contact": {
+        "email": "info@elections.gov",
+        "phone": "1800 VOTE NOW",
+        "address": "100 Government Way, Anytown, CA 90210"
+      },
+      "hours": "8:00 AM - 5:00 PM (Monday-Friday)",
+      "website": "https://elections.gov"
+    },
+    "voting_system": {
+      "version": "2.1.0",
+      "last_updated": "2025-09-12T08:00:00Z",
+      "maintenance_window": "Sunday 2:00 AM - 4:00 AM",
+      "backup_frequency": "Every 6 hours",
+      "encryption": "AES-256"
+    },
+    "registration_settings": {
+      "minimum_age": 18,
+      "registration_period_days": 30,
+      "id_verification_required": true,
+      "address_verification_required": true,
+      "automatic_registration": false
+    }
+  },
+  "announcements": {
+    "announcement_001": {
+      "id": "announcement_001",
+      "title": "Voter Registration Deadline Approaching",
+      "content": "Don't forget to register for the upcoming Presidential Election. Registration deadline is October 15, 2025.",
+      "type": "urgent",
+      "priority": "high",
+      "startDate": "2025-09-01T00:00:00Z",
+      "endDate": "2025-10-15T23:59:59Z",
+      "targetAudience": "all_users",
+      "createdAt": "2025-09-01T10:00:00Z"
+    },
+    "announcement_002": {
+      "id": "announcement_002",
+      "title": "New Polling Station Added",
+      "content": "A new polling station has been added at the Community Center to better serve Midtown residents.",
+      "type": "info", 
+      "priority": "medium",
+      "startDate": "2025-08-15T00:00:00Z",
+      "endDate": "2025-11-03T23:59:59Z",
+      "targetAudience": "midtown_residents",
+      "createdAt": "2025-08-15T11:30:00Z"
+    }
+  },
+  "candidates": {
+    "candidate_reg_001": {
+      "candidateId": "CAND647521001",
+      "firstName": "Rajesh",
+      "lastName": "Kumar",
+      "dateOfBirth": "1978-03-15",
+      "age": 47,
+      "gender": "male",
+      "email": "rajesh.kumar@email.com",
+      "phone": "9876543210",
+      "address": "123 MG Road, Sector 14",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "pinCode": "400001",
+      "constituency": "Mumbai North",
+      "politicalParty": "BJP",
+      "symbol": "Lotus",
+      "slogan": "Development for All",
+      "manifesto": "My vision is to bring comprehensive development to Mumbai North constituency with focus on infrastructure, healthcare, and education. I pledge to work tirelessly for the people's welfare.",
+      "education": "Post Graduate",
+      "profession": "Business Owner",
+      "experience": "Former Municipal Councilor for 6 years, active in community development projects. Led several initiatives for clean water access and road improvement in the constituency.",
+      "photoBase64": null,
+      "registrationDate": "2025-09-10T09:30:00Z",
+      "status": "Approved",
+      "votes": 0,
+      "verified": true
+    },
+    "candidate_reg_002": {
+      "candidateId": "CAND647521002",
+      "firstName": "Priya",
+      "lastName": "Sharma", 
+      "dateOfBirth": "1985-07-22",
+      "age": 40,
+      "gender": "female",
+      "email": "priya.sharma@email.com",
+      "phone": "9876543211",
+      "address": "456 Park Street, Block C",
+      "city": "Delhi",
+      "state": "Delhi",
+      "pinCode": "110001",
+      "constituency": "New Delhi",
+      "politicalParty": "INC",
+      "symbol": "Hand",
+      "slogan": "Progress with Unity",
+      "manifesto": "I stand for women's empowerment, youth employment, and environmental sustainability. My agenda focuses on creating opportunities for all while preserving our natural heritage.",
+      "education": "Graduate",
+      "profession": "Social Worker",
+      "experience": "10 years of grassroots social work, former president of Women's Development Association. Worked extensively on education and healthcare initiatives in rural areas.",
+      "photoBase64": null,
+      "registrationDate": "2025-09-11T14:15:00Z",
+      "status": "Approved",
+      "votes": 0,
+      "verified": true
+    },
+    "candidate_reg_003": {
+      "candidateId": "CAND647521003",
+      "firstName": "Amit",
+      "lastName": "Patel",
+      "dateOfBirth": "1982-12-03",
+      "age": 42,
+      "gender": "male",
+      "email": "amit.patel@email.com",
+      "phone": "9876543212",
+      "address": "789 Gandhi Nagar, Phase 2",
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "pinCode": "380001",
+      "constituency": "Ahmedabad West",
+      "politicalParty": "AAP",
+      "symbol": "Broom",
+      "slogan": "Clean Politics, Better Future",
+      "manifesto": "Fighting corruption and bringing transparency in governance. Focus on improving public services, healthcare infrastructure, and creating job opportunities for youth.",
+      "education": "Professional",
+      "profession": "Engineer",
+      "experience": "No prior political experience but active in anti-corruption movements. Led several RTI campaigns and community welfare projects.",
+      "photoBase64": null,
+      "registrationDate": "2025-09-12T11:45:00Z",
+      "status": "Pending",
+      "votes": 0,
+      "verified": false
+    },
+    "candidate_reg_004": {
+      "candidateId": "CAND647521004",
+      "firstName": "Kavita",
+      "lastName": "Singh",
+      "dateOfBirth": "1979-09-18",
+      "age": 45,
+      "gender": "female",
+      "email": "kavita.singh@email.com",
+      "phone": "9876543213",
+      "address": "321 Civil Lines, Near Court",
+      "city": "Lucknow",
+      "state": "Uttar Pradesh",
+      "pinCode": "226001",
+      "constituency": "Lucknow Central",
+      "politicalParty": "Independent",
+      "symbol": "Book",
+      "slogan": "Education First",
+      "manifesto": "Education is the foundation of progress. I commit to improving educational infrastructure, supporting teachers, and ensuring every child has access to quality education regardless of their background.",
+      "education": "Post Graduate",
+      "profession": "Teacher",
+      "experience": "25 years of teaching experience, former principal of government school. Worked with NGOs on literacy programs and skill development initiatives.",
+      "photoBase64": null,
+      "registrationDate": "2025-09-13T08:20:00Z",
+      "status": "Approved",
+      "votes": 0,
+      "verified": true
+    },
+    "candidate_reg_005": {
+      "candidateId": "CAND647521005",
+      "firstName": "Vikram",
+      "lastName": "Reddy",
+      "dateOfBirth": "1976-05-30",
+      "age": 49,
+      "gender": "male",
+      "email": "vikram.reddy@email.com",
+      "phone": "9876543214",
+      "address": "654 Jubilee Hills, Road No. 45",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "pinCode": "500001",
+      "constituency": "Hyderabad South",
+      "politicalParty": "Other",
+      "symbol": "Rising Sun",
+      "slogan": "Innovation and Growth",
+      "manifesto": "Leveraging technology for governance and development. Focus on IT infrastructure, startup ecosystem, and making Hyderabad a global technology hub while ensuring inclusive growth.",
+      "education": "Post Graduate",
+      "profession": "IT Executive",
+      "experience": "Former CEO of tech company, active in startup mentoring and technology policy discussions. No direct political experience but strong business leadership background.",
+      "photoBase64": null,
+      "registrationDate": "2025-09-13T16:00:00Z",
+      "status": "Pending",
+      "votes": 0,
+      "verified": false
+    }
+  }
+}

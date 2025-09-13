@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login | Online Voting System</title>
+<style>
+  :root{
+    --navy:#101a3a;
+    --navy-2:#182447;
+    --red:#e23b3b;
+    --grey:#6b7280;
+    --light:#f8fafc;
+    --card:#ffffff;
+    --shadow:0 10px 24px rgba(0,0,0,.15);
+  }
+  
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color:#111827;background:linear-gradient(135deg, var(--navy), var(--navy-2));
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+  }
+
+  .login-container{
+    background:#fff;border-radius:16px;box-shadow:var(--shadow);
+    width:100%;max-width:400px;padding:40px;margin:20px;
+  }
+
+  .login-header{text-align:center;margin-bottom:30px}
+  .login-logo{font-size:48px;margin-bottom:10px}
+  .login-title{font-size:24px;font-weight:700;color:var(--navy);margin-bottom:8px}
+  .login-subtitle{color:var(--grey);font-size:14px}
+
+  .login-tabs{
+    display:flex;border-bottom:2px solid var(--light);margin-bottom:30px;
+  }
+  .login-tab{
+    flex:1;padding:12px;text-align:center;cursor:pointer;
+    font-weight:600;color:var(--grey);border-bottom:3px solid transparent;
+    transition:all .2s ease;
+  }
+  .login-tab.active{color:var(--navy);border-color:var(--red)}
+
+  .form-group{margin-bottom:20px}
+  .form-label{display:block;margin-bottom:8px;font-weight:600;color:var(--navy)}
+  .form-input{
+    width:100%;padding:14px;border:2px solid #e5e7eb;border-radius:8px;
+    font-size:14px;transition:border-color .2s ease;
+  }
+  .form-input:focus{outline:none;border-color:var(--red)}
+
+  .login-btn{
+    width:100%;background:var(--red);color:#fff;border:none;
+    padding:14px;border-radius:8px;font-size:16px;font-weight:700;
+    cursor:pointer;transition:all .2s ease;margin-bottom:20px;
+  }
+  .login-btn:hover{filter:brightness(.95);transform:translateY(-1px)}
+
+  .login-links{text-align:center}
+  .login-link{color:var(--red);text-decoration:none;font-weight:600;font-size:14px}
+  .login-link:hover{text-decoration:underline}
+
+  .divider{text-align:center;margin:20px 0;color:var(--grey);font-size:14px}
+  .register-btn{
+    width:100%;background:var(--light);color:var(--navy);border:2px solid #e5e7eb;
+    padding:14px;border-radius:8px;font-size:16px;font-weight:700;
+    cursor:pointer;transition:all .2s ease;
+  }
+  .register-btn:hover{background:#e5e7eb}
+
+  .error-message{
+    background:#fef2f2;color:#991b1b;padding:12px;border-radius:6px;
+    margin-bottom:20px;font-size:14px;display:none;
+  }
+  .success-message{
+    background:#f0fdf4;color:#166534;padding:12px;border-radius:6px;
+    margin-bottom:20px;font-size:14px;display:none;
+  }
+
+  @media (max-width: 480px) {
+    .login-container{padding:30px 20px;margin:10px}
+  }
+</style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">🗳️</div>
+      <h1 class="login-title">Online Voting System</h1>
+      <p class="login-subtitle">Secure access to your voting portal</p>
+    </div>
+
+    <div class="login-tabs">
+      <div class="login-tab active" onclick="switchTab('voter')">Voter Login</div>
+      <div class="login-tab" onclick="switchTab('admin')">Admin Login</div>
+    </div>
+
+    <div id="error-message" class="error-message"></div>
+    <div id="success-message" class="success-message"></div>
+
+    <!-- Voter Login Form -->
+    <form id="voter-login-form">
+      <div class="form-group">
+        <label class="form-label">Voter ID</label>
+        <input type="text" class="form-input" id="voter-id" placeholder="Enter your Voter ID" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date of Birth</label>
+        <input type="date" class="form-input" id="voter-dob" required>
+      </div>
+      <button type="submit" class="login-btn">🔐 Login to Dashboard</button>
+    </form>
+
+    <!-- Admin Login Form -->
+    <form id="admin-login-form" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Admin Username</label>
+        <input type="text" class="form-input" id="admin-username" placeholder="Enter admin username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin Password</label>
+        <input type="password" class="form-input" id="admin-password" placeholder="Enter admin password" required>
+      </div>
+      <button type="submit" class="login-btn">🛡️ Login to Admin Panel</button>
+    </form>
+
+    <div class="divider">────── OR ──────</div>
+    
+    <button class="register-btn" onclick="window.location.href='newenroll.html'">
+      📝 Register as New Voter
+    </button>
+
+    <div class="login-links" style="margin-top:20px;">
+      <a href="main.html" class="login-link">← Back to Home</a>
+    </div>
+  </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBUq8kXNMY29rfqEf0APbnyDMf-fWTc7SU",
+      authDomain: "fingerprint-voting-syste-d926c.firebaseapp.com",
+      databaseURL: "https://fingerprint-voting-syste-d926c-default-rtdb.firebaseio.com",
+      projectId: "fingerprint-voting-syste-d926c",
+      storageBucket: "fingerprint-voting-syste-d926c.firebasestorage.app",
+      messagingSenderId: "458706704567",
+      appId: "1:458706704567:web:e1595ac2701de926219532",
+      measurementId: "G-4SEHLRDTCY"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Make available globally
+    window.database = database;
+    window.firebaseRefs = { ref, get };
+  </script>
+
+  <script>
+    let currentTab = 'voter';
+
+    // Switch between voter and admin tabs
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      // Update tab active states
+      document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Show/hide forms
+      document.getElementById('voter-login-form').style.display = tab === 'voter' ? 'block' : 'none';
+      document.getElementById('admin-login-form').style.display = tab === 'admin' ? 'block' : 'none';
+      
+      // Clear messages
+      clearMessages();
+    }
+
+    // Clear error/success messages
+    function clearMessages() {
+      document.getElementById('error-message').style.display = 'none';
+      document.getElementById('success-message').style.display = 'none';
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      document.getElementById('success-message').style.display = 'none';
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      const successDiv = document.getElementById('success-message');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+      document.getElementById('error-message').style.display = 'none';
+    }
+
+    // Voter login
+    document.getElementById('voter-login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      clearMessages();
+      
+      const voterId = document.getElementById('voter-id').value.trim();
+      const dob = document.getElementById('voter-dob').value;
+      
+      if (!voterId || !dob) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      try {
+        // Show loading
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '🔍 Verifying...';
+        submitBtn.disabled = true;
+
+        // Get voters from Firebase
+        const votersRef = window.firebaseRefs.ref(window.database, 'voters');
+        const snapshot = await window.firebaseRefs.get(votersRef);
+        
+        if (snapshot.exists()) {
+          const voters = snapshot.val();
+          
+          // Find voter by ID and DOB
+          const voterEntry = Object.entries(voters).find(([id, voter]) => 
+            voter.voterId === voterId && voter.dob === dob
+          );
+          
+          if (voterEntry) {
+            const [id, voter] = voterEntry;
+            
+            // Check if voter is active
+            if (voter.status !== 'Active') {
+              showError('Your voter registration is inactive. Please contact the election office.');
+              return;
+            }
+
+            // Store voter ID in localStorage
+            localStorage.setItem('currentVoterId', voterId);
+            localStorage.setItem('loginType', 'voter');
+            
+            showSuccess('Login successful! Redirecting to dashboard...');
+            
+            // Redirect to voter dashboard
+            setTimeout(() => {
+              window.location.href = `voter-dashboard.html?voterId=${voterId}`;
+            }, 1500);
+            
+          } else {
+            showError('Invalid Voter ID or Date of Birth. Please check your credentials.');
+          }
+        } else {
+          showError('No voter records found. Please register first.');
+        }
+
+      } catch (error) {
+        console.error('Login error:', error);
+        showError('Error connecting to database. Please try again.');
+      } finally {
+        // Restore button
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Admin login
+    document.getElementById('admin-login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      clearMessages();
+      
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value;
+      
+      if (!username || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      // Simple admin credentials (in production, use proper authentication)
+      const adminCredentials = {
+        'admin': 'admin123',
+        'administrator': 'vote2025',
+        'election_admin': 'secure123'
+      };
+
+      try {
+        // Show loading
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '🔍 Verifying...';
+        submitBtn.disabled = true;
+
+        // Simulate delay for security
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (adminCredentials[username] && adminCredentials[username] === password) {
+          // Store admin session
+          localStorage.setItem('currentAdmin', username);
+          localStorage.setItem('loginType', 'admin');
+          
+          showSuccess('Admin login successful! Redirecting to admin panel...');
+          
+          // Redirect to admin panel
+          setTimeout(() => {
+            window.location.href = 'admin-panel.html';
+          }, 1500);
+          
+        } else {
+          showError('Invalid admin credentials. Access denied.');
+        }
+
+      } catch (error) {
+        console.error('Admin login error:', error);
+        showError('Login error. Please try again.');
+      } finally {
+        // Restore button
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Make functions available globally
+    window.switchTab = switchTab;
+
+    // Auto-focus first input
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('voter-id').focus();
+    });
+  </script>
+
+</body>
+</html>

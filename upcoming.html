@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Upcoming Elections | Online Voting System</title>
+<style>
+  :root{
+    --navy:#101a3a;      /* deep header/nav color */
+    --navy-2:#182447;    /* secondary navy */
+    --red:#e23b3b;       /* accent red */
+    --grey:#6b7280;
+    --light:#f8fafc;
+    --card:#ffffff;
+    --shadow:0 10px 24px rgba(0,0,0,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color:#111827;background:var(--light);line-height:1.55;
+  }
+
+  /* Topbar */
+  .topbar{
+    background:var(--navy);
+    color:#e5e7eb;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 28px;font-size:14px
+  }
+  .topbar span{margin-right:18px}
+
+  /* Header */
+  .header{
+    background:#fff;border-bottom:1px solid #e5e7eb;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .logo{font-size:32px;color:var(--navy)}
+  .brand .title{font-size:22px;font-weight:800;color:var(--navy)}
+  .brand .sub{font-size:12px;color:var(--grey)}
+  .cta{
+    display:flex;gap:10px;align-items:center
+  }
+  .btn{
+    border:none;border-radius:28px;padding:10px 18px;font-weight:700;
+    cursor:pointer;transition:transform .15s ease, filter .2s ease
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-red:hover{filter:brightness(.94)}
+  .btn-ghost{background:#eef2ff;color:var(--navy);border-radius:10px}
+
+  /* MODULES NAV (highlighted, bordered) */
+  .modules{
+    position:sticky;top:0;z-index:4000;  /* above slider */
+    background:linear-gradient(0deg, var(--navy-2), var(--navy));
+    border-top:4px solid var(--red);
+    border-bottom:4px solid var(--red);
+    box-shadow:var(--shadow)
+  }
+  .modules ul{list-style:none;display:flex;justify-content:center;flex-wrap:wrap}
+  .modules > ul > li{position:relative;margin:0 2px}
+  .modules a{
+    color:#fff;text-decoration:none;font-weight:600;letter-spacing:.2px;
+    display:block;padding:14px 18px;border-radius:8px;transition:background .25s ease
+  }
+  .modules > ul > li > a:hover{background:rgba(255,255,255,.08)}
+
+  /* Page Title */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy), var(--navy-2));
+    color: white;
+    padding: 40px 28px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .page-header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+  
+  .page-header p {
+    font-size: 18px;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  /* Back Button */
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .back-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .back-button span {
+    margin-left: 5px;
+  }
+  
+  /* Elections Container */
+  .elections-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  
+  /* Election Cards */
+  .election-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .election-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  }
+  
+  .election-header {
+    background: linear-gradient(to right, var(--navy-2), var(--navy));
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .election-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  
+  .election-date {
+    font-size: 14px;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .election-date-icon {
+    margin-right: 6px;
+  }
+  
+  .election-content {
+    padding: 20px;
+  }
+  
+  .election-description {
+    margin-bottom: 20px;
+    color: #4b5563;
+  }
+  
+  .election-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .detail-item {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .detail-icon {
+    background: #f3f4f6;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+    color: var(--navy);
+  }
+  
+  .detail-text {
+    font-size: 14px;
+  }
+  
+  .detail-text strong {
+    display: block;
+    color: #1f2937;
+    margin-bottom: 2px;
+  }
+  
+  .election-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  
+  /* Status Badges */
+  .status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  
+  .status-upcoming {
+    background: #e6f7ff;
+    color: #0284c7;
+    border: 1px solid #bae6fd;
+  }
+  
+  .status-registration {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+  }
+  
+  .status-urgent {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+  
+  .empty-state-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: var(--grey);
+  }
+  
+  .empty-state h2 {
+    font-size: 24px;
+    color: #1f2937;
+    margin-bottom: 10px;
+  }
+  
+  .empty-state p {
+    color: var(--grey);
+    max-width: 500px;
+    margin: 0 auto 20px;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .topbar {
+      flex-direction: column;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .header {
+      flex-direction: column;
+      padding: 15px;
+      gap: 15px;
+    }
+    
+    .modules ul {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .back-button {
+      position: relative;
+      top: auto;
+      left: auto;
+      margin-bottom: 20px;
+      display: inline-flex;
+    }
+    
+    .page-header {
+      text-align: center;
+      padding: 30px 20px;
+    }
+    
+    .page-header h1 {
+      font-size: 28px;
+    }
+    
+    .election-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .election-date {
+      align-self: flex-start;
+    }
+    
+    .election-details {
+      grid-template-columns: 1fr;
+    }
+    
+    .election-actions {
+      flex-direction: column;
+    }
+    
+    .election-actions .btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <span>📧 contact@onlinevote.gov</span>
+      <span>📞 1800 VOTE NOW</span>
+      <span>🌐 Private Voting System</span>
+    </div>
+    <div>⏰ Last Updated: Sep 6, 2025 · 09:30 AM</div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="logo">🗳️</div>
+      <div>
+        <div class="title">Online Voting System</div>
+        <div class="sub">Private Election Voting System</div>
+      </div>
+    </div>
+    <div class="cta">
+      <button class="btn btn-ghost">⚙️ Settings</button>
+    </div>
+  </header>
+
+  <!-- MODULES NAV -->
+  <nav class="modules">
+    <ul>
+      <li><a href="main.html">Home</a></li>
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="#">Candidates</a></li>
+      <li><a href="#">Polling Stations</a></li>
+      <li><a href="#">Results</a></li>
+      <li><a href="#">Voter Enrollment</a></li>
+      <li><a href="#">Help Desk</a></li>
+    </ul>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <button class="back-button" onclick="history.back()">← <span>Back</span></button>
+    <h1>Upcoming Elections</h1>
+    <p>Stay informed about upcoming elections and be ready to cast your vote</p>
+  </div>
+
+  <!-- Elections Container -->
+  <div class="elections-container">
+    <!-- Loading State -->
+    <div id="loading" class="empty-state">
+      <div class="empty-state-icon">⏳</div>
+      <h2>Loading Elections...</h2>
+      <p>Connecting to database and fetching election information.</p>
+    </div>
+    
+    <!-- Elections will be populated here by JavaScript -->
+    <div id="elections-list" style="display: none;"></div>
+    
+    <!-- Empty State (shown when no elections found) -->
+    <div id="empty-state" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">📭</div>
+      <h2>No Upcoming Elections</h2>
+      <p>There are currently no scheduled elections. Please check back later or contact your local election office for more information.</p>
+      <button class="btn btn-red" onclick="loadElections()">Refresh</button>
+    </div>
+  </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBUq8kXNMY29rfqEf0APbnyDMf-fWTc7SU",
+      authDomain: "fingerprint-voting-syste-d926c.firebaseapp.com",
+      databaseURL: "https://fingerprint-voting-syste-d926c-default-rtdb.firebaseio.com",
+      projectId: "fingerprint-voting-syste-d926c",
+      storageBucket: "fingerprint-voting-syste-d926c.firebasestorage.app",
+      messagingSenderId: "458706704567",
+      appId: "1:458706704567:web:e1595ac2701de926219532",
+      measurementId: "G-4SEHLRDTCY"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Make functions available globally
+    window.database = database;
+    window.firebaseRefs = { ref, get, child };
+    
+    // Load elections on page load
+    window.addEventListener('load', () => {
+      loadElections();
+    });
+  </script>
+
+  <script>
+    // Load elections from Firebase
+    async function loadElections() {
+      try {
+        const loading = document.getElementById('loading');
+        const electionsList = document.getElementById('elections-list');
+        const emptyState = document.getElementById('empty-state');
+        
+        // Show loading state
+        loading.style.display = 'block';
+        electionsList.style.display = 'none';
+        emptyState.style.display = 'none';
+        
+        // Get elections from Firebase
+        const electionsRef = window.firebaseRefs.ref(window.database, 'elections');
+        const snapshot = await window.firebaseRefs.get(electionsRef);
+        
+        if (snapshot.exists()) {
+          const elections = snapshot.val();
+          const electionList = Object.entries(elections);
+          
+          if (electionList.length > 0) {
+            // Display elections
+            electionsList.innerHTML = '';
+            
+            electionList.forEach(([electionId, election]) => {
+              const electionCard = createElectionCard(electionId, election);
+              electionsList.appendChild(electionCard);
+            });
+            
+            loading.style.display = 'none';
+            electionsList.style.display = 'block';
+          } else {
+            loading.style.display = 'none';
+            emptyState.style.display = 'block';
+          }
+        } else {
+          loading.style.display = 'none';
+          emptyState.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error loading elections:', error);
+        
+        // Show error message
+        const loading = document.getElementById('loading');
+        loading.innerHTML = `
+          <div class="empty-state-icon">❌</div>
+          <h2>Error Loading Elections</h2>
+          <p>Unable to connect to the database. Please check your internet connection.</p>
+          <button class="btn btn-red" onclick="loadElections()">Retry</button>
+        `;
+      }
+    }
+    
+    // Create election card HTML
+    function createElectionCard(electionId, election) {
+      const div = document.createElement('div');
+      div.className = 'election-card';
+      
+      // Format date
+      const electionDate = new Date(election.startDate);
+      const formattedDate = electionDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric'
+      });
+      
+      // Format registration deadline
+      const regDeadline = new Date(election.registrationDeadline);
+      const formattedRegDate = regDeadline.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      // Determine status badge
+      const now = new Date();
+      const regDeadlineDate = new Date(election.registrationDeadline);
+      const timeDiff = regDeadlineDate.getTime() - now.getTime();
+      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      
+      let statusBadge = '';
+      if (daysDiff <= 7 && daysDiff > 0) {
+        statusBadge = '<div class="status-badge status-urgent">Registration Closing Soon</div>';
+      } else if (daysDiff > 7) {
+        statusBadge = '<div class="status-badge status-registration">Registration Open</div>';
+      } else {
+        statusBadge = '<div class="status-badge status-upcoming">Coming Soon</div>';
+      }
+      
+      // Get candidate count
+      const candidateCount = election.candidates ? Object.keys(election.candidates).length : 0;
+      
+      div.innerHTML = `
+        <div class="election-header">
+          <div class="election-title">${election.title}</div>
+          <div class="election-date"><span class="election-date-icon">📅</span> ${formattedDate}</div>
+        </div>
+        <div class="election-content">
+          ${statusBadge}
+          <p class="election-description">${election.description}</p>
+          
+          <div class="election-details">
+            <div class="detail-item">
+              <div class="detail-icon">🔍</div>
+              <div class="detail-text">
+                <strong>Election Type</strong>
+                ${election.type.charAt(0).toUpperCase() + election.type.slice(1)} Election
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-icon">📋</div>
+              <div class="detail-text">
+                <strong>Registration Deadline</strong>
+                ${formattedRegDate}
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-icon">🕒</div>
+              <div class="detail-text">
+                <strong>Voting Hours</strong>
+                ${election.votingHours}
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-icon">📍</div>
+              <div class="detail-text">
+                <strong>Jurisdiction</strong>
+                ${election.jurisdiction}
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-icon">👥</div>
+              <div class="detail-text">
+                <strong>Candidates</strong>
+                ${candidateCount} Running
+              </div>
+            </div>
+          </div>
+          
+          <div class="election-actions">
+            <button class="btn btn-ghost" onclick="viewCandidates('${electionId}')">View Candidates</button>
+            <button class="btn btn-red" onclick="registerToVote('${electionId}')">Register to Vote</button>
+          </div>
+        </div>
+      `;
+      
+      return div;
+    }
+    
+    // View candidates function
+    function viewCandidates(electionId) {
+      alert(`View candidates for election: ${electionId}\n(This would redirect to candidates page)`);
+    }
+    
+    // Register to vote function  
+    function registerToVote(electionId) {
+      // Redirect to enrollment page
+      window.location.href = 'newenroll.html';
+    }
+    
+    // Make loadElections available globally
+    window.loadElections = loadElections;
+
+    // Simple interactivity for the election cards
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.election-card');
+      if (card && !e.target.closest('button')) {
+        // Toggle a selected class or expand details
+        card.style.transform = 'translateY(-5px)';
+        setTimeout(() => {
+          card.style.transform = 'translateY(-3px)';
+        }, 300);
+      }
+    });
+  </script>
+
+</body>
+</html>

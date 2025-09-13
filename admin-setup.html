@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Admin Setup</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f8fafc; }
+        h1 { color: #101a3a; }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px 5px; 
+            background: #e23b3b; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        button:hover { background: #c53030; }
+        button:disabled { background: #a0aec0; cursor: not-allowed; }
+        .success { color: #065f46; background: #ecfdf5; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #10b981; }
+        .error { color: #b91c1c; background: #fef2f2; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #ef4444; }
+        .info { color: #1e40af; background: #eff6ff; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #3b82f6; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        #output { max-height: 500px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; background: white; margin-top: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .button-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🗳️ Firebase Realtime Database Setup</h1>
+    <p>Use this page to initialize your database with comprehensive sample data.</p>
+    <p><strong>Instructions:</strong> 1) Import the JSON file into your Firebase console, OR 2) Use the buttons below</p>
+    
+    <div style="margin: 20px 0; padding: 15px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #0284c7;">
+        <h3>📁 Manual Import Method (Recommended)</h3>
+        <p>1. Go to your <a href="https://console.firebase.google.com/u/0/project/fingerprint-voting-syste-d926c/database/fingerprint-voting-syste-d926c-default-rtdb/data" target="_blank">Firebase Console</a></p>
+        <p>2. Click the "⋮" menu → Import JSON</p>
+        <p>3. Select the <code>firebase-database-import.json</code> file from your project folder</p>
+    </div>
+    
+    <button onclick="testConnection()">🔍 Test Connection</button>
+    <button onclick="createSampleElection()">📊 Create Sample Election</button>
+    <button onclick="createPollingStations()">🏢 Create Polling Stations</button>
+    <button onclick="createSampleVoters()">👤 Create Sample Voters</button>
+    <button onclick="listAllCollections()">📋 View Database Structure</button>
+    <button onclick="importSampleData()">📥 Import Sample Data (Code)</button>
+    
+    <div id="output"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, push, set, get, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUq8kXNMY29rfqEf0APbnyDMf-fWTc7SU",
+            authDomain: "fingerprint-voting-syste-d926c.firebaseapp.com",
+            databaseURL: "https://fingerprint-voting-syste-d926c-default-rtdb.firebaseio.com",
+            projectId: "fingerprint-voting-syste-d926c",
+            storageBucket: "fingerprint-voting-syste-d926c.firebasestorage.app",
+            messagingSenderId: "458706704567",
+            appId: "1:458706704567:web:e1595ac2701de926219532",
+            measurementId: "G-4SEHLRDTCY"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Make functions available globally
+        window.database = database;
+        window.firebaseRefs = { ref, push, set, get, child };
+
+        window.createSampleElection = async function() {
+            try {
+                showOutput('Creating sample election...', 'info');
+                
+                const election = {
+                    title: "Presidential Election 2025",
+                    type: "presidential",
+                    startDate: "2025-11-05T07:00:00Z",
+                    endDate: "2025-11-05T20:00:00Z",
+                    status: "upcoming",
+                    candidates: {
+                        candidate_1: { name: "Jane Smith", party: "Democratic Party", votes: 0 },
+                        candidate_2: { name: "John Davis", party: "Republican Party", votes: 0 },
+                        candidate_3: { name: "Sarah Wilson", party: "Independent", votes: 0 }
+                    },
+                    description: "National presidential election for 2025",
+                    totalVotes: 0,
+                    createdAt: new Date().toISOString()
+                };
+                
+                const electionsRef = ref(database, 'elections');
+                const newElectionRef = push(electionsRef);
+                await set(newElectionRef, election);
+                
+                showOutput(`✅ Election created successfully with ID: ${newElectionRef.key}`, 'success');
+            } catch (error) {
+                console.error('Detailed error:', error);
+                showOutput(`❌ Error creating election: ${error.message}`, 'error');
+                showOutput(`💡 Make sure Realtime Database is enabled and rules allow writes`, 'info');
+            }
+        };
+
+        window.createPollingStations = async function() {
+            try {
+                showOutput('Creating polling stations...', 'info');
+                
+                const stations = {
+                    station_1: {
+                        name: "Central High School",
+                        address: "123 Main Street, Downtown",
+                        city: "Anytown",
+                        state: "CA",
+                        zip: "90210",
+                        hours: "7:00 AM - 8:00 PM",
+                        capacity: 500,
+                        coordinates: { lat: 34.0522, lng: -118.2437 },
+                        status: "active",
+                        createdAt: new Date().toISOString()
+                    },
+                    station_2: {
+                        name: "Community Center",
+                        address: "456 Oak Avenue, Midtown", 
+                        city: "Anytown",
+                        state: "CA",
+                        zip: "90211",
+                        hours: "7:00 AM - 8:00 PM",
+                        capacity: 300,
+                        coordinates: { lat: 34.0622, lng: -118.2537 },
+                        status: "active",
+                        createdAt: new Date().toISOString()
+                    },
+                    station_3: {
+                        name: "City Hall",
+                        address: "789 Government Plaza, Uptown",
+                        city: "Anytown", 
+                        state: "CA",
+                        zip: "90212",
+                        hours: "7:00 AM - 8:00 PM",
+                        capacity: 400,
+                        coordinates: { lat: 34.0722, lng: -118.2637 },
+                        status: "active",
+                        createdAt: new Date().toISOString()
+                    }
+                };
+
+                const stationsRef = ref(database, 'polling_stations');
+                await set(stationsRef, stations);
+                
+                showOutput(`✅ Created ${Object.keys(stations).length} polling stations successfully`, 'success');
+            } catch (error) {
+                console.error('Detailed error:', error);
+                showOutput(`❌ Error creating polling stations: ${error.message}`, 'error');
+                showOutput(`💡 Check your Realtime Database rules and setup`, 'info');
+            }
+        };
+
+        window.listAllCollections = async function() {
+            try {
+                showOutput('Checking database structure...', 'info');
+                
+                const dbRef = ref(database);
+                const snapshot = await get(dbRef);
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    let output = '<h3>📊 Database Structure:</h3>';
+                    
+                    Object.keys(data).forEach(key => {
+                        const count = data[key] ? Object.keys(data[key]).length : 0;
+                        output += `<p><strong>${key}:</strong> ${count} items ✅</p>`;
+                    });
+                    
+                    showOutput(output, 'success');
+                } else {
+                    showOutput('📭 Database is empty. Create some data first!', 'info');
+                }
+                
+            } catch (error) {
+                console.error('Detailed error:', error);
+                showOutput(`❌ Error reading database: ${error.message}`, 'error');
+            }
+        };
+
+        // Add database connection test
+        window.testConnection = async function() {
+            try {
+                showOutput('Testing Firebase Realtime Database connection...', 'info');
+                
+                const dbRef = ref(database);
+                const snapshot = await get(dbRef);
+                
+                showOutput('✅ Realtime Database connection successful!', 'success');
+                showOutput(`📡 Connected to: ${database.app.options.databaseURL}`, 'info');
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                showOutput(`❌ Connection failed: ${error.message}`, 'error');
+                showOutput(`💡 Check your Firebase configuration and database URL`, 'info');
+            }
+        };
+
+        // Create sample voter data
+        window.createSampleVoters = async function() {
+            try {
+                showOutput('Creating sample voter data...', 'info');
+                
+                const voters = {
+                    voter_1: {
+                        firstName: "John",
+                        lastName: "Doe",
+                        dob: "1990-05-15",
+                        age: 33,
+                        gender: "Male",
+                        address: "123 Oak Street",
+                        city: "Anytown",
+                        state: "CA",
+                        zip: "90210",
+                        organization: "Tech Corp",
+                        idProofType: "driver",
+                        idNumber: "D123456789",
+                        registrationDate: new Date().toISOString(),
+                        status: "Active",
+                        voterId: "VOTE8472951"
+                    },
+                    voter_2: {
+                        firstName: "Jane",
+                        lastName: "Smith",
+                        dob: "1988-12-20",
+                        age: 36,
+                        gender: "Female",
+                        address: "456 Pine Avenue",
+                        city: "Anytown",
+                        state: "CA",
+                        zip: "90211",
+                        organization: "Health Systems",
+                        idProofType: "state",
+                        idNumber: "S987654321",
+                        registrationDate: new Date().toISOString(),
+                        status: "Active",
+                        voterId: "VOTE8472952"
+                    }
+                };
+
+                const votersRef = ref(database, 'voters');
+                await set(votersRef, voters);
+                
+                showOutput(`✅ Created ${Object.keys(voters).length} sample voters successfully`, 'success');
+            } catch (error) {
+                console.error('Detailed error:', error);
+                showOutput(`❌ Error creating voters: ${error.message}`, 'error');
+            }
+        };
+
+        function showOutput(message, type) {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            output.appendChild(div);
+            
+            // Auto scroll to latest message
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+    <script>
+        // Functions to import the JSON data structure
+        window.importSampleData = async function() {
+            try {
+                showOutput('Importing comprehensive sample data...', 'info');
+                
+                // Import the JSON structure from the file we created
+                const sampleData = {
+                    elections: {
+                        election_001: {
+                            title: "Presidential General Election",
+                            type: "presidential", 
+                            startDate: "2025-11-03T07:00:00Z",
+                            endDate: "2025-11-03T20:00:00Z",
+                            status: "upcoming",
+                            description: "The presidential election is a nationwide vote held every four years to elect the President and Vice President of the country.",
+                            registrationDeadline: "2025-10-15T23:59:59Z",
+                            votingHours: "7:00 AM - 8:00 PM",
+                            jurisdiction: "National",
+                            candidates: {
+                                candidate_001: { name: "Jane Smith", party: "Democratic Party", votes: 0 },
+                                candidate_002: { name: "John Davis", party: "Republican Party", votes: 0 },
+                                candidate_003: { name: "Sarah Wilson", party: "Independent", votes: 0 }
+                            },
+                            totalVotes: 0,
+                            createdAt: new Date().toISOString()
+                        }
+                    }
+                };
+                
+                // Import to Firebase Realtime Database
+                const rootRef = ref(database);
+                await set(rootRef, sampleData);
+                
+                showOutput('✅ Sample data imported successfully!', 'success');
+            } catch (error) {
+                console.error('Import error:', error);
+                showOutput(`❌ Error importing data: ${error.message}`, 'error');
+            }
+        };
+
+        function showOutput(message, type) {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            output.appendChild(div);
+            
+            // Auto scroll to latest message
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
